@@ -1274,12 +1274,14 @@ void Actor_UpdateBgCheckInfo(PlayState* play, Actor* actor, f32 wallCheckHeight,
     }
 
     if (flags & UPDBGCHECKINFO_FLAG_0) {
-        if ((!(flags & UPDBGCHECKINFO_FLAG_7) &&
-             BgCheck_EntitySphVsWall3(&play->colCtx, &sp64, &actor->world.pos, &actor->prevPos, wallCheckRadius,
-                                      &actor->wallPoly, &bgId, actor, wallCheckHeight)) ||
-            ((flags & UPDBGCHECKINFO_FLAG_7) &&
-             BgCheck_EntitySphVsWall4(&play->colCtx, &sp64, &actor->world.pos, &actor->prevPos, wallCheckRadius,
-                                      &actor->wallPoly, &bgId, actor, wallCheckHeight))) {
+        if (((!(flags & UPDBGCHECKINFO_FLAG_7) &&
+              BgCheck_EntitySphVsWall3(&play->colCtx, &sp64, &actor->world.pos, &actor->prevPos, wallCheckRadius,
+                                       &actor->wallPoly, &bgId, actor, wallCheckHeight)) ||
+             ((flags & UPDBGCHECKINFO_FLAG_7) &&
+              BgCheck_EntitySphVsWall4(&play->colCtx, &sp64, &actor->world.pos, &actor->prevPos, wallCheckRadius,
+                                       &actor->wallPoly, &bgId, actor, wallCheckHeight))) &&
+            (!(flags & UPDBGCHECKINFO_FLAG_8) ||
+             !SurfaceType_IsIgnoredByProjectiles(&play->colCtx, actor->wallPoly, bgId))) {
             wallPoly = actor->wallPoly;
             Math_Vec3f_Copy(&actor->world.pos, &sp64);
             actor->wallYaw = Math_Atan2S(wallPoly->normal.z, wallPoly->normal.x);

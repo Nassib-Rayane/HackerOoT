@@ -574,13 +574,11 @@ beginseg
     include "build/src/overlays/gamestates/ovl_title/ovl_title_reloc.o"
 endseg
 
-#ifdef ENABLE_MAP_SELECT
 beginseg
     name "ovl_select"
     include "build/src/overlays/gamestates/ovl_select/z_select.o"
     include "build/src/overlays/gamestates/ovl_select/ovl_select_reloc.o"
 endseg
-#endif
 
 beginseg
     name "ovl_opening"
@@ -7829,110 +7827,6 @@ beginseg
 endseg
 
 beginseg
-    name "ydan_scene"
-    compress
-    romalign 0x1000
-    include "build/assets/scenes/dungeons/ydan/ydan_scene.o"
-    number 2
-endseg
-
-beginseg
-    name "ydan_room_0"
-    compress
-    romalign 0x1000
-    include "build/assets/scenes/dungeons/ydan/ydan_room_0.o"
-    number 3
-endseg
-
-beginseg
-    name "ydan_room_1"
-    compress
-    romalign 0x1000
-    include "build/assets/scenes/dungeons/ydan/ydan_room_1.o"
-    number 3
-endseg
-
-beginseg
-    name "ydan_room_2"
-    compress
-    romalign 0x1000
-    include "build/assets/scenes/dungeons/ydan/ydan_room_2.o"
-    number 3
-endseg
-
-beginseg
-    name "ydan_room_3"
-    compress
-    romalign 0x1000
-    include "build/assets/scenes/dungeons/ydan/ydan_room_3.o"
-    number 3
-endseg
-
-beginseg
-    name "ydan_room_4"
-    compress
-    romalign 0x1000
-    include "build/assets/scenes/dungeons/ydan/ydan_room_4.o"
-    number 3
-endseg
-
-beginseg
-    name "ydan_room_5"
-    compress
-    romalign 0x1000
-    include "build/assets/scenes/dungeons/ydan/ydan_room_5.o"
-    number 3
-endseg
-
-beginseg
-    name "ydan_room_6"
-    compress
-    romalign 0x1000
-    include "build/assets/scenes/dungeons/ydan/ydan_room_6.o"
-    number 3
-endseg
-
-beginseg
-    name "ydan_room_7"
-    compress
-    romalign 0x1000
-    include "build/assets/scenes/dungeons/ydan/ydan_room_7.o"
-    number 3
-endseg
-
-beginseg
-    name "ydan_room_8"
-    compress
-    romalign 0x1000
-    include "build/assets/scenes/dungeons/ydan/ydan_room_8.o"
-    number 3
-endseg
-
-beginseg
-    name "ydan_room_9"
-    compress
-    romalign 0x1000
-    include "build/assets/scenes/dungeons/ydan/ydan_room_9.o"
-    number 3
-endseg
-
-beginseg
-    name "ydan_room_10"
-    compress
-    romalign 0x1000
-    include "build/assets/scenes/dungeons/ydan/ydan_room_10.o"
-    number 3
-endseg
-
-beginseg
-    name "ydan_room_11"
-    compress
-    romalign 0x1000
-    include "build/assets/scenes/dungeons/ydan/ydan_room_11.o"
-    number 3
-endseg
-
-beginseg
     name "ddan_scene"
     compress
     romalign 0x1000
@@ -11740,7 +11634,6 @@ beginseg
     number 3
 endseg
 
-#ifdef INCLUDE_TEST_SCENES
 beginseg
     name "besitu_room_0"
     compress
@@ -11778,22 +11671,6 @@ beginseg
     compress
     romalign 0x1000
     include "build/assets/scenes/indoors/hairal_niwa2/hairal_niwa2_room_0.o"
-    number 3
-endseg
-
-beginseg
-    name "sasatest_scene"
-    compress
-    romalign 0x1000
-    include "build/assets/scenes/test_levels/sasatest/sasatest_scene.o"
-    number 2
-endseg
-
-beginseg
-    name "sasatest_room_0"
-    compress
-    romalign 0x1000
-    include "build/assets/scenes/test_levels/sasatest/sasatest_room_0.o"
     number 3
 endseg
 
@@ -11916,4 +11793,82 @@ beginseg
     include "build/assets/scenes/test_levels/besitu/besitu_scene.o"
     number 2
 endseg
-#endif
+
+beginseg
+    name "ydan_scene"
+    compress
+    romalign 0x1000
+    include "build/assets/scenes/dungeons/ydan/ydan_scene_main.o"
+    include "build/assets/scenes/dungeons/ydan/ydan_scene_col.o"
+    include "build/assets/scenes/dungeons/ydan/ydan_scene_tex.o"
+    number 2
+endseg
+
+beginseg
+    name "ydan_room_0"
+    compress
+    romalign 0x1000
+    include "build/assets/scenes/dungeons/ydan/ydan_room_0_main.o"
+    include "build/assets/scenes/dungeons/ydan/ydan_room_0_model_info.o"
+    include "build/assets/scenes/dungeons/ydan/ydan_room_0_model.o"
+    number 3
+endseg
+
+beginseg
+    name "ydan_room_1"
+    compress
+    romalign 0x1000
+    include "build/assets/scenes/dungeons/ydan/ydan_room_1_main.o"
+    include "build/assets/scenes/dungeons/ydan/ydan_room_1_model_info.o"
+    include "build/assets/scenes/dungeons/ydan/ydan_room_1_model.o"
+    number 3
+endseg
+
+beginseg
+    name "ydan_room_2"
+    compress
+    romalign 0x1000
+    include "build/assets/scenes/dungeons/ydan/ydan_room_2_main.o"
+    include "build/assets/scenes/dungeons/ydan/ydan_room_2_model_info.o"
+    include "build/assets/scenes/dungeons/ydan/ydan_room_2_model.o"
+    number 3
+endseg
+
+beginseg
+    name "ydan_room_3"
+    compress
+    romalign 0x1000
+    include "build/assets/scenes/dungeons/ydan/ydan_room_3_main.o"
+    include "build/assets/scenes/dungeons/ydan/ydan_room_3_model_info.o"
+    include "build/assets/scenes/dungeons/ydan/ydan_room_3_model.o"
+    number 3
+endseg
+
+beginseg
+    name "ydan_room_4"
+    compress
+    romalign 0x1000
+    include "build/assets/scenes/dungeons/ydan/ydan_room_4_main.o"
+    include "build/assets/scenes/dungeons/ydan/ydan_room_4_model_info.o"
+    include "build/assets/scenes/dungeons/ydan/ydan_room_4_model.o"
+    number 3
+endseg
+
+beginseg
+    name "sasatest_scene"
+    compress
+    romalign 0x1000
+    include "build/assets/scenes/test_levels/sasatest/sasatest_scene_main.o"
+    include "build/assets/scenes/test_levels/sasatest/sasatest_scene_col.o"
+    number 2
+endseg
+
+beginseg
+    name "sasatest_room_0"
+    compress
+    romalign 0x1000
+    include "build/assets/scenes/test_levels/sasatest/sasatest_room_0_main.o"
+    include "build/assets/scenes/test_levels/sasatest/sasatest_room_0_model_info.o"
+    include "build/assets/scenes/test_levels/sasatest/sasatest_room_0_model.o"
+    number 3
+endseg

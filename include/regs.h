@@ -210,6 +210,10 @@
 #define R_USE_DEBUG_CUTSCENE                     dREG(95)
 
 
+#define R_MOTION_BLUR_ENABLED       SREG(92)
+#define R_MOTION_BLUR_ALPHA         SREG(93)
+
+
 #define R_HREG_MODE  HREG(80) // see `HRegMode` for mode options
 
 typedef enum {

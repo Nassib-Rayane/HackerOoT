@@ -553,6 +553,7 @@ typedef enum {
 #define UPDBGCHECKINFO_FLAG_5 (1 << 5) // unused
 #define UPDBGCHECKINFO_FLAG_6 (1 << 6) // disable water ripples
 #define UPDBGCHECKINFO_FLAG_7 (1 << 7) // alternate wall check?
+#define UPDBGCHECKINFO_FLAG_8 (1 << 8) // check if poly ignore projectiles
 
 typedef enum {
     /* 0x0 */ NPC_TALK_STATE_IDLE, // NPC not currently talking to player

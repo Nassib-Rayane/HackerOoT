@@ -235,6 +235,9 @@ void Play_Init(GameState* thisx) {
         return;
     }
 
+    R_MOTION_BLUR_ENABLED = 0;
+    R_MOTION_BLUR_ALPHA = 0x80;
+
     SystemArena_Display();
     GameState_Realloc(&this->state, 0x1D4790);
     KaleidoManager_Init(this);
@@ -1010,6 +1013,25 @@ void Play_Update(PlayState* this) {
 skip:
     PLAY_LOG(3801);
 
+    {   // motion blur testing controls
+        if (CHECK_BTN_ALL(this->state.input[0].press.button, BTN_L)) {
+            R_MOTION_BLUR_ENABLED ^= 1;
+        }
+        if (R_MOTION_BLUR_ENABLED != 0) {
+            if (CHECK_BTN_ALL(this->state.input[0].cur.button, BTN_DRIGHT)) {
+                R_MOTION_BLUR_ALPHA++;
+                if (R_MOTION_BLUR_ALPHA > 255) {
+                    R_MOTION_BLUR_ALPHA = 255;
+                }
+            } else if (CHECK_BTN_ALL(this->state.input[0].cur.button, BTN_DLEFT)) {
+                R_MOTION_BLUR_ALPHA--;
+                if (R_MOTION_BLUR_ALPHA < 0) {
+                    R_MOTION_BLUR_ALPHA = 0;
+                }
+            }
+        }
+    }
+
 #ifdef ENABLE_CAMERA_DEBUGGER
     if ((sp80 == 0) || gDebugCamEnabled) {
 #else
@@ -1056,6 +1078,46 @@ void Play_DrawOverlayElements(PlayState* this) {
 
     if (this->gameOverCtx.state != GAMEOVER_INACTIVE) {
         GameOver_FadeInLights(this);
+    }
+}
+
+
+void PreRender_MotionBlurOpaque(PreRender* this, Gfx** gfxP);
+void PreRender_MotionBlur(PreRender* this, Gfx** gfxp, s32 alpha);
+extern u16 (*gWorkBuf)[SCREEN_WIDTH * SCREEN_HEIGHT];
+
+
+void Gameplay_DrawMotionBlur(PlayState* play) {
+
+    static u8 sFirstDraw = true;
+
+    if (R_MOTION_BLUR_ENABLED == 0) { // disabled
+        sFirstDraw = true;
+    } else {
+        Gfx* gfxRef;
+        Gfx* gfx;
+
+        OPEN_DISPS(play->state.gfxCtx, __FILE__, __LINE__);
+
+        gfxRef = POLY_OPA_DISP;
+        gfx = Graph_GfxPlusOne(gfxRef);
+        gSPDisplayList(OVERLAY_DISP++, gfx);
+
+        play->pauseBgPreRender.fbuf = play->state.gfxCtx->curFrameBuffer;
+        play->pauseBgPreRender.fbufSave = (u16*)gWorkBuf;
+
+        if (sFirstDraw) {
+            sFirstDraw = false;
+        } else {
+            PreRender_MotionBlur(&play->pauseBgPreRender, &gfx, R_MOTION_BLUR_ALPHA);
+        }
+        PreRender_MotionBlurOpaque(&play->pauseBgPreRender, &gfx);
+
+        gSPEndDisplayList(gfx++);
+        Graph_BranchDlist(gfxRef, gfx);
+        POLY_OPA_DISP = gfx;
+
+        CLOSE_DISPS(play->state.gfxCtx, __FILE__, __LINE__);
     }
 }
 
@@ -1283,7 +1345,7 @@ void Play_Draw(PlayState* this) {
                     DebugDisplay_DrawObjects(this);
                 }
 #endif
-
+                Gameplay_DrawMotionBlur(this);
                 if ((R_PAUSE_BG_PRERENDER_STATE == PAUSE_BG_PRERENDER_SETUP) ||
                     (gTransitionTileState == TRANS_TILE_SETUP)) {
                     Gfx* gfxP = OVERLAY_DISP;

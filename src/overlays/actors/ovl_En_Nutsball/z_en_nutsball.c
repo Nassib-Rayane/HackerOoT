@@ -99,7 +99,7 @@ void func_80ABBBA8(EnNutsball* this, PlayState* play) {
     Player* player = GET_PLAYER(play);
     Vec3s sp4C;
     Vec3f sp40;
-
+    
     this->timer--;
 
     if (this->timer == 0) {
@@ -109,8 +109,8 @@ void func_80ABBBA8(EnNutsball* this, PlayState* play) {
     this->actor.home.rot.z += 0x2AA8;
 
     if ((this->actor.bgCheckFlags & BGCHECKFLAG_WALL) || (this->actor.bgCheckFlags & BGCHECKFLAG_GROUND) ||
-        (this->collider.base.atFlags & AT_HIT) || (this->collider.base.acFlags & AC_HIT) ||
-        (this->collider.base.ocFlags1 & OC1_HIT)) {
+         (this->collider.base.atFlags & AT_HIT) || (this->collider.base.acFlags & AC_HIT) ||
+         (this->collider.base.ocFlags1 & OC1_HIT)) {
         // Checking if the player is using a shield that reflects projectiles
         // And if so, reflects the projectile on impact
         if ((player->currentShield == PLAYER_SHIELD_DEKU) ||
@@ -153,7 +153,7 @@ void EnNutsball_Update(Actor* thisx, PlayState* play) {
 
         Actor_MoveXZGravity(&this->actor);
         Actor_UpdateBgCheckInfo(play, &this->actor, 10, sCylinderInit.dim.radius, sCylinderInit.dim.height,
-                                UPDBGCHECKINFO_FLAG_0 | UPDBGCHECKINFO_FLAG_2);
+                                UPDBGCHECKINFO_FLAG_0 | UPDBGCHECKINFO_FLAG_2 | UPDBGCHECKINFO_FLAG_8);
         Collider_UpdateCylinder(&this->actor, &this->collider);
 
         this->actor.flags |= ACTOR_FLAG_24;

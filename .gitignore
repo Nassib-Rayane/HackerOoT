@@ -56,3 +56,6 @@ graphs/
 
 # Per-user configuration
 .python-version
+tools/gzinject/HackerOoT_compressed.z64.bak
+tools/gzinject/romc
+tools/gzinject/romcori

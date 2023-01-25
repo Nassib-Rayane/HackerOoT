@@ -84,7 +84,6 @@ EntranceCutscene sEntranceCutsceneTable[] = {
     { ENTR_HYRULE_CASTLE_0, 1, EVENTCHKINF_A5, gHyruleCastleIntroCs },
     { ENTR_GORON_CITY_0, 2, EVENTCHKINF_A6, gGoronCityIntroCs },
     { ENTR_TEMPLE_OF_TIME_0, 2, EVENTCHKINF_A7, gTempleOfTimeIntroCs },
-    { ENTR_DEKU_TREE_0, 2, EVENTCHKINF_A8, gDekuTreeIntroCs },
     { ENTR_HYRULE_FIELD_11, 0, EVENTCHKINF_EPONA_OBTAINED, gHyruleFieldSouthEponaJumpCs },
     { ENTR_HYRULE_FIELD_13, 0, EVENTCHKINF_EPONA_OBTAINED, gHyruleFieldEastEponaJumpCs },
     { ENTR_HYRULE_FIELD_12, 0, EVENTCHKINF_EPONA_OBTAINED, gHyruleFieldWestEponaJumpCs },
@@ -114,7 +113,7 @@ EntranceCutscene sEntranceCutsceneTable[] = {
 };
 
 void* sUnusedEntranceCsList[] = {
-    gDekuTreeIntroCs, gJabuJabuIntroCs, gDcOpeningCs, gMinuetCs, gIceCavernSerenadeCs, gTowerBarrierCs,
+    gJabuJabuIntroCs, gDcOpeningCs, gMinuetCs, gIceCavernSerenadeCs, gTowerBarrierCs,
 };
 
 // Stores the frame the relevant cam data was last applied on

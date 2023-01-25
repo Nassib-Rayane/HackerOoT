@@ -109,8 +109,6 @@ void Scene_DrawConfigDefault(PlayState* play) {
 }
 
 void* D_8012A2F8[] = {
-    gYdanTex_00BA18,
-    gYdanTex_00CA18,
 };
 
 void Scene_DrawConfigDekuTree(PlayState* play) {

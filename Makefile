@@ -209,6 +209,12 @@ wad:
 	tools/gzinject/gzinject -a inject -r 1 -k common-key.bin -w basewad.wad -m $(ROMC) -o $(WAD) -t "HackerOoT" -i NHOE -p tools/gzinject/patches/NACE.gzi -p tools/gzinject/patches/gz_default_remap.gzi
 	$(RM) -r wadextract/ common-key.bin
 
+wadmm:
+	$(MAKE) compress CFLAGS="-DCONSOLE_WIIVC $(CFLAGS) -fno-reorder-blocks -fno-optimize-sibling-calls" CPPFLAGS="-DCONSOLE_WIIVC $(CPPFLAGS)"
+	@echo 45e | tools/gzinject/gzinject -a genkey -k common-key.bin >/dev/null
+	tools/gzinject/gzinject -a inject -r 1 -k common-key.bin -w basewadmm.wad -m $(ROMC) -o $(WAD) -t "HackerOoT" -i NHOE
+	$(RM) -r wadextract/ common-key.bin
+
 clean:
 	$(RM) -r $(ROM) $(ROMC) $(WAD) $(ELF) build cache
 

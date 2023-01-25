@@ -432,6 +432,9 @@ void Graph_Update(GraphicsContext* gfxCtx, GameState* gameState) {
     }
 }
 
+u16 (*gWorkBuf)[SCREEN_WIDTH * SCREEN_HEIGHT]; // pointer-to-array, array itself is allocated (see below)
+#define ALIGN64(val) (((val) + 0x3F) & ~0x3F)
+
 void Graph_ThreadEntry(void* arg0) {
     GraphicsContext gfxCtx;
     GameState* gameState;
@@ -439,6 +442,9 @@ void Graph_ThreadEntry(void* arg0) {
     GameStateOverlay* nextOvl;
     GameStateOverlay* ovl;
     char faultMsg[0x50];
+
+    gWorkBuf = SystemArena_MallocDebug(sizeof(*gWorkBuf) + 64 - 1, __FILE__, __LINE__);
+    gWorkBuf = (void*)ALIGN64((u32)gWorkBuf);
 
     nextOvl = &gGameStateOverlayTable[0];
 
