@@ -34,8 +34,16 @@ typedef enum {
     /* 0x05 */ SHUTTER_BOSS,
     /* 0x06 */ SHUTTER_GOHMA_BLOCK,
     /* 0x07 */ SHUTTER_FRONT_SWITCH_BACK_CLEAR,
+               SHUTTER_RUPEE_0,
+               SHUTTER_RUPEE_5,
+               SHUTTER_RUPEE_20,
     /* 0x0B */ SHUTTER_KEY_LOCKED = 11
 } DoorShutterType;
+
+typedef enum {
+    TEXT_YES,
+    TEXT_NO
+} DoorShutterMessageChoice;
 
 struct DoorShutter;
 

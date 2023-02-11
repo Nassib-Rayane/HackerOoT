@@ -1487,7 +1487,7 @@ void FileSelect_LoadGame(GameState* thisx) {
         u8 name[] = { BOOT_PLAYER_NAME };
         this->n64ddFlag = 0;
         MemCpy(&this->fileNames[this->buttonIndex][0], &name, sizeof(name));
-        Sram_InitSave(this, &this->sramCtx);
+        Sram_InitDebugSave();
     }
 #ifndef BOOT_TO_SCENE_NEW_GAME_ONLY
     gSaveContext.entranceIndex = BOOT_ENTRANCE;
