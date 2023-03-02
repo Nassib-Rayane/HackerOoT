@@ -1003,7 +1003,7 @@ void DoorShutter_Update(Actor* thisx, PlayState* play) {
             if (this->actionFunc == DoorShutter_WaitForObject)
                 GfxPrint_Printf(&printer, "%s", "DoorShutter_WaitForObject");
             else if (this->actionFunc == DoorShutter_WaitForAsk)
-                GfxPrint_Printf(&printer, "%s", this->actionFunc);
+                GfxPrint_Printf(&printer, "%s", "DoorShutter_WaitForAsk");
             else if (this->actionFunc == DoorShutter_Open)
                 GfxPrint_Printf(&printer, "%s", "DoorShutter_Open");
             else if (this->actionFunc == DoorShutter_Unbar)
@@ -1019,7 +1019,7 @@ void DoorShutter_Update(Actor* thisx, PlayState* play) {
             else if (this->actionFunc == DoorShutter_Unopenable)
                 GfxPrint_Printf(&printer, "%s", "DoorShutter_Unopenable");
             else if (this->actionFunc == DoorShutter_Idle)
-                GfxPrint_Printf(&printer, "%d", this->actionFunc);
+                GfxPrint_Printf(&printer, "%d", (1000000.0f * 1) / (OS_CYCLES_TO_USEC(1)));
             else if (this->actionFunc == DoorShutter_Open)
                 GfxPrint_Printf(&printer, "%s", "DoorShutter_Open");
             else if (this->actionFunc == DoorShutter_Close)
