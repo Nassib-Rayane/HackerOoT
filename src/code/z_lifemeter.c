@@ -288,6 +288,13 @@ static void* sHeartTextures[] = {
     gHeartThreeQuarterTex, gHeartThreeQuarterTex, gHeartThreeQuarterTex, gHeartThreeQuarterTex,
 };
 
+static void* sHeartTexturesMM[] = {
+    gHeartFullTexMM,         gHeartQuarterTexMM,      gHeartQuarterTexMM,      gHeartQuarterTexMM,
+    gHeartQuarterTexMM,      gHeartQuarterTexMM,      gHeartHalfTexMM,         gHeartHalfTexMM,
+    gHeartHalfTexMM,         gHeartHalfTexMM,         gHeartHalfTexMM,         gHeartThreeQuarterTexMM,
+    gHeartThreeQuarterTexMM, gHeartThreeQuarterTexMM, gHeartThreeQuarterTexMM, gHeartThreeQuarterTexMM,
+};
+
 static void* sHeartDDTextures[] = {
     gDefenseHeartFullTex,         gDefenseHeartQuarterTex,      gDefenseHeartQuarterTex,
     gDefenseHeartQuarterTex,      gDefenseHeartQuarterTex,      gDefenseHeartQuarterTex,
@@ -372,9 +379,19 @@ void Health_DrawMeter(PlayState* play) {
             }
 
             if (heartIndex < fullHeartCount) {
-                heartBgImg = gHeartFullTex;
+                if (GET_EVENTCHKINF(0xA1)) {
+                    heartBgImg = gHeartFullTexMM;
+                }
+                else {
+                    heartBgImg = gHeartFullTex;
+                 }
             } else if (heartIndex == fullHeartCount) {
-                heartBgImg = sHeartTextures[curHeartFraction];
+                if (GET_EVENTCHKINF(0xA1)) {
+                    heartBgImg = sHeartTexturesMM[curHeartFraction];
+                }
+                else {
+                    heartBgImg = sHeartTextures[curHeartFraction];
+                 }
             } else {
                 heartBgImg = gHeartEmptyTex;
             }

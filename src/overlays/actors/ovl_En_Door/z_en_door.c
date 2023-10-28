@@ -259,10 +259,18 @@ void EnDoor_Idle(EnDoor* this, PlayState* play) {
 }
 
 void EnDoor_WaitForCheck(EnDoor* this, PlayState* play) {
-    if (Actor_ProcessTalkRequest(&this->actor, play)) {
-        this->actionFunc = EnDoor_Check;
-    } else {
-        func_8002F2CC(&this->actor, play, DOOR_CHECK_RANGE);
+    TransitionActorEntry* transitionEntry;
+
+    transitionEntry = &play->transiActorCtx.list[(u16)this->actor.params >> 0xA];
+    if ((transitionEntry->sides[0].room != this->actor.room) || (Player_InCsMode(play))){
+                EnDoor_Idle(this, play);
+            }
+    else {
+        if (Actor_ProcessTalkRequest(&this->actor, play)) {
+            this->actionFunc = EnDoor_Check;
+        } else {
+            func_8002F2CC(&this->actor, play, DOOR_CHECK_RANGE);
+        }
     }
 }
 
@@ -298,7 +306,12 @@ void EnDoor_Open(EnDoor* this, PlayState* play) {
 
     if (DECR(this->lockTimer) == 0) {
         if (SkelAnime_Update(&this->skelAnime)) {
-            this->actionFunc = EnDoor_Idle;
+            if (ENDOOR_GET_TYPE(&this->actor) == DOOR_CHECKABLE) {
+                this->actionFunc = EnDoor_WaitForCheck;
+            }
+            else {
+                this->actionFunc = EnDoor_Idle;
+            }
             this->playerIsOpening = false;
         } else if (Animation_OnFrame(&this->skelAnime, sDoorAnimOpenFrames[this->openAnim])) {
             Actor_PlaySfx(&this->actor,

@@ -3877,6 +3877,12 @@ beginseg
 endseg
 
 beginseg
+    name "ovl_Box_Warp"
+    include "build/src/overlays/actors/ovl_Box_Warp/t_box_warp.o"
+    include "build/src/overlays/actors/ovl_Box_Warp/ovl_Box_Warp_reloc.o"
+endseg
+
+beginseg
     name "gameplay_keep"
     compress
     romalign 0x1000
