@@ -44,7 +44,7 @@ void BoxWarp_Init(Actor* thisx, PlayState* play) {
 
     this->type = 0xD;
     animFrameStart = 0.0f;
-    anim = sAnimations[((void)0, gSaveContext.linkAge)];
+    anim = sAnimations[((void)0, gSaveContext.save.linkAge)];
 
     this->entranceIndex = thisx->params & 0xFFF;
     this->cutsceneIndex = ((thisx->params >> 12) & 0xF) ? ((((thisx->params >> 12) & 0xF) - 1) | 0xFFF0) : 0;
@@ -99,7 +99,7 @@ void BoxWarp_WaitOpen(BoxWarp* this, PlayState* play) {
 
 
     if (this->unk_1F4 != 0) {
-        linkAge = gSaveContext.linkAge;
+        linkAge = gSaveContext.save.linkAge;
         anim = sAnimations[(this->unk_1F4 < 0 ? 2 : 0) + linkAge];
 
         frameCount = Animation_GetLastFrame(anim);
@@ -236,7 +236,7 @@ void BoxWarp_Draw(Actor* thisx, PlayState* play) {
     Gfx* gfx;
     
     
-    OPEN_DISPS(play->state.gfxCtx, __FILE__, __LINE__);
+    OPEN_DISPS(play->state.gfxCtx);
     gfx = POLY_OPA_DISP + 1;
     gSPDisplayList(OVERLAY_DISP++, gfx);
     GfxPrint_Init(&printer);
@@ -257,10 +257,10 @@ void BoxWarp_Draw(Actor* thisx, PlayState* play) {
     gSPEndDisplayList(gfx++);
     gSPBranchList(POLY_OPA_DISP, gfx);
     POLY_OPA_DISP = gfx;
-    CLOSE_DISPS(play->state.gfxCtx, __FILE__, __LINE__);
+    CLOSE_DISPS(play->state.gfxCtx);
     */
 
-    OPEN_DISPS(play->state.gfxCtx, __FILE__, __LINE__);
+    OPEN_DISPS(play->state.gfxCtx);
 
     gDPPipeSync(POLY_OPA_DISP++);
     gDPSetEnvColor(POLY_OPA_DISP++, 0, 0, 0, 255);
@@ -269,5 +269,5 @@ void BoxWarp_Draw(Actor* thisx, PlayState* play) {
     POLY_OPA_DISP = SkelAnime_Draw(play, this->skelanime.skeleton, this->skelanime.jointTable, NULL,
                                     BoxWarp_PostLimbDraw, this, POLY_OPA_DISP);
 
-    CLOSE_DISPS(play->state.gfxCtx, __FILE__, __LINE__);
+    CLOSE_DISPS(play->state.gfxCtx);
 }

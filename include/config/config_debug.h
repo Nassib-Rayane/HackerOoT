@@ -16,11 +16,6 @@
 // #define DETERMINISTIC_BUILD
 
 /**
- * Skips the N64 logo and boots directly into the game if defined (may already be skipped by the options below)
- */
-#define SKIP_N64_BOOT_LOGO
-
-/**
  * Options for booting directly into a scene, the map select or the file select, instead of the title screen.
  */
 #define BOOT_TO_SCENE
@@ -35,7 +30,7 @@
 // #define MAP_SELECT_ON_FILE_1
 
 // Change these if using `BOOT_TO_SCENE`, `BOOT_TO_SCENE_NEW_GAME_ONLY` or `BOOT_TO_MAP_SELECT`
-#define BOOT_ENTRANCE ENTR_YDAN_0
+#define BOOT_ENTRANCE ENTR_SASATEST_0
 #define BOOT_AGE LINK_AGE_CHILD
 #define BOOT_CUTSCENE 0xFFEF
 
@@ -58,5 +53,10 @@
  * This will enable Jumper pak compatibility
  */
 // #define DISABLE_DEBUG_FEATURES
+
+/**
+ * Disable autoscroll on crash debugger
+*/
+#define DISABLE_CRASH_DBG_AUTOSCROLL
 
 #endif

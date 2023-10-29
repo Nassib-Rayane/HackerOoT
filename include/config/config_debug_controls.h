@@ -57,7 +57,7 @@
 
 /**** [FRAME ADVANCE CONTROLS] ****/
 // Controller port to use
-#define FA_CONTROLLER_PORT CONTROLLER_PORT_2
+#define FA_CONTROLLER_PORT CONTROLLER_PORT_1
 
 // Set to true to use a button combo
 #define FA_USE_BTN_COMBO true
