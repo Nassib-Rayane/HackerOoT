@@ -390,7 +390,7 @@ void KaleidoScope_DrawItemSelect(PlayState* play) {
                                 pauseCtx->equipTargetItem = 0xBF + index;
                                 sEquipState = 0;
                                 pauseCtx->equipAnimAlpha = 0;
-                                sEquipMoveTimer = 6;
+                                sEquipMoveTimer = 2;
                             } else {
                                 Audio_PlaySfxGeneral(NA_SE_SY_DECIDE, &gSfxDefaultPos, 4, &gSfxDefaultFreqAndVolScale,
                                                      &gSfxDefaultFreqAndVolScale, &gSfxDefaultReverb);
@@ -510,7 +510,7 @@ void KaleidoScope_UpdateItemEquip(PlayState* play) {
     u16 offsetY;
 
     if (sEquipState == 0) {
-        pauseCtx->equipAnimAlpha += 14;
+        pauseCtx->equipAnimAlpha += 128;
         if (pauseCtx->equipAnimAlpha > 255) {
             pauseCtx->equipAnimAlpha = 254;
             sEquipState++;
@@ -525,7 +525,7 @@ void KaleidoScope_UpdateItemEquip(PlayState* play) {
         if (D_8082A488 == 0) {
             pauseCtx->equipTargetItem -= 0xBF - ITEM_BOW_FIRE;
             pauseCtx->equipTargetSlot = SLOT_BOW;
-            sEquipMoveTimer = 6;
+            sEquipMoveTimer = 2;
             WREG(90) = 320;
             WREG(87) = WREG(91);
             sEquipState++;

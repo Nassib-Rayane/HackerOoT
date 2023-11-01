@@ -367,6 +367,9 @@ DrawItemTableEntry sDrawItemTable[] = {
     { GetItem_DrawOpa0, { gGiKokiriSwordDL } },
     // gold skulltula token, OBJECT_ST
     { GetItem_DrawSkullToken, { gSkulltulaTokenDL, gSkulltulaTokenFlameDL } },
+    // green rupee, OBJECT_GI_RUPY CUSTOM Rupoor
+    { GetItem_DrawSmallRupee,
+      { gGiRupeeInnerDL, gGiBlackRupeeInnerColorDL, gGiRupeeOuterDL, gGiBlackRupeeOuterColorDL } },
 };
 
 /**

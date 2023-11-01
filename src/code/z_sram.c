@@ -149,7 +149,8 @@ void Sram_InitNewSave(void) {
     gSaveContext.save.info.horseData.pos.y = 72;
     gSaveContext.save.info.horseData.pos.z = 5497;
     gSaveContext.save.info.horseData.angle = -0x6AD9;
-    gSaveContext.save.info.playerData.magicLevel = 0;
+    gSaveContext.save.info.playerData.magic = MAGIC_DOUBLE_METER;
+    gSaveContext.save.info.playerData.magicLevel = MAGIC_DOUBLE_METER;
     gSaveContext.save.info.infTable[INFTABLE_1DX_INDEX] = 1;
     gSaveContext.save.info.sceneFlags[SCENE_WATER_TEMPLE].swch = 0x40000000;
 }
@@ -292,7 +293,7 @@ void Sram_InitDebugSave(void) {
     gSaveContext.save.info.horseData.pos.z = 5497;
     gSaveContext.save.info.horseData.angle = -0x6AD9;
     gSaveContext.zTargetSetting = 1;
-    //gSaveContext.save.info.infTable[0] |= 0x5009;
+    gSaveContext.save.info.infTable[0] |= 0x5009;
     gSaveContext.save.info.eventChkInf[0] |= 0x123F;
     SET_EVENTCHKINF(EVENTCHKINF_80);
     SET_EVENTCHKINF(EVENTCHKINF_C4);
@@ -308,7 +309,7 @@ void Sram_InitDebugSave(void) {
     }
 
     gSaveContext.save.entranceIndex = ENTR_HYRULE_FIELD_0;
-    gSaveContext.save.info.playerData.magicLevel = 0;
+    gSaveContext.save.info.playerData.magicLevel = 2;
     gSaveContext.save.info.sceneFlags[SCENE_WATER_TEMPLE].swch = 0x40000000;
 }
 

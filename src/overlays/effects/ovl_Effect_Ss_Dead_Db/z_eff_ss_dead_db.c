@@ -36,10 +36,10 @@ u32 EffectSsDeadDb_Init(PlayState* play, u32 index, EffectSs* this, void* initPa
     this->velocity = initParams->velocity;
     this->accel = initParams->accel;
     this->gfx = SEGMENTED_TO_VIRTUAL(gEffEnemyDeathFlameDL);
-    this->life = initParams->unk_34;
+    this->life = initParams->life;
     this->flags = 4;
     this->rScaleStep = initParams->scaleStep;
-    this->rReg11 = initParams->unk_34;
+    this->rReg11 = initParams->life;
     this->draw = EffectSsDeadDb_Draw;
     this->update = EffectSsDeadDb_Update;
     this->rScale = initParams->scale;

@@ -310,6 +310,8 @@ void EffectSsFCircle_Spawn(PlayState* play, Actor* actor, Vec3f* pos, s16 radius
 void EffectSsDeadDb_Spawn(PlayState* play, Vec3f* pos, Vec3f* velocity, Vec3f* accel, s16 scale, s16 scaleStep,
                           s16 primR, s16 primG, s16 primB, s16 primA, s16 envR, s16 envG, s16 envB, s16 unused,
                           s32 arg14, s16 playSfx);
+void EffectSsDeadDb_SpawnMM(PlayState* play, Vec3f* pos, Vec3f* velocity, Vec3f* accel, Color_RGBA8* prim,
+                          Color_RGBA8* env, s16 scale, s16 scaleStep, s32 life);
 void EffectSsDeadDd_Spawn(PlayState* play, Vec3f* pos, Vec3f* velocity, Vec3f* accel, s16 scale, s16 scaleStep,
                           s16 primR, s16 primG, s16 primB, s16 alpha, s16 envR, s16 envG, s16 envB, s16 alphaStep,
                           s32 life);
@@ -517,6 +519,7 @@ void func_80035844(Vec3f* arg0, Vec3f* arg1, Vec3s* arg2, s32 arg3);
 Actor* func_800358DC(Actor* actor, Vec3f* spawnPos, Vec3s* spawnRot, f32* arg3, s32 timer, s16* unused,
                      PlayState* play, s16 params, Gfx* dList);
 void func_800359B8(Actor* actor, s16 arg1, Vec3s* arg2);
+void func_800BE568(Actor* actor, ColliderSphere* collider);
 s32 Flags_GetEventChkInf(s32 flag);
 void Flags_SetEventChkInf(s32 flag);
 s32 Flags_GetInfTable(s32 flag);
@@ -636,6 +639,7 @@ void BgCheck_DrawStaticCollision(PlayState*, CollisionContext*);
 void func_80043334(CollisionContext* colCtx, Actor* actor, s32 bgId);
 s32 DynaPolyActor_TransformCarriedActor(CollisionContext* colCtx, s32 bgId, Actor* carriedActor);
 void DynaPolyActor_Init(DynaPolyActor* dynaActor, s32 transformFlags);
+void DynaPolyActor_LoadMesh(PlayState* play, DynaPolyActor* dynaActor, CollisionHeader* meshHeader);
 void DynaPolyActor_UnsetAllInteractFlags(DynaPolyActor* dynaActor);
 void DynaPolyActor_SetActorOnTop(DynaPolyActor* dynaActor);
 void DynaPoly_SetPlayerOnTop(CollisionContext* colCtx, s32 floorBgId);
@@ -717,6 +721,13 @@ s32 Collider_SetQuad(PlayState* play, ColliderQuad* collider, Actor* actor, Coll
 s32 Collider_ResetQuadAT(PlayState* play, Collider* collider);
 s32 Collider_ResetQuadAC(PlayState* play, Collider* collider);
 s32 Collider_ResetQuadOC(PlayState* play, Collider* collider);
+s32 Collider_InitSphere(struct PlayState* play, ColliderSphere* collider);
+s32 Collider_DestroySphere(struct PlayState* play, ColliderSphere* collider);
+s32 Collider_SetSphere(struct PlayState* play, ColliderSphere* collider, struct Actor* actor, ColliderSphereInit* src);
+s32 Collider_InitAndSetSphere(struct PlayState* play, ColliderSphere* collider, struct Actor* actor, ColliderSphereInit* src);
+s32 Collider_ResetSphereAT(struct PlayState* play, Collider* collider);
+s32 Collider_ResetSphereAC(struct PlayState* play, Collider* collider);
+s32 Collider_ResetSphereOC(struct PlayState* play, Collider* collider);
 s32 Collider_InitLine(PlayState* play, OcLine* line);
 s32 Collider_DestroyLine(PlayState* play, OcLine* line);
 s32 Collider_SetLinePoints(PlayState* play, OcLine* ocLine, Vec3f* a, Vec3f* b);
@@ -875,6 +886,7 @@ void Lib_GetControlStickData(f32* outMagnitude, s16* outAngle, Input* input);
 s16 Rand_S16Offset(s16 base, s16 range);
 void Math_Vec3f_Copy(Vec3f* dest, Vec3f* src);
 void Math_Vec3s_ToVec3f(Vec3f* dest, Vec3s* src);
+void Math_Vec3f_ToVec3s(Vec3s* dest, Vec3f* src);
 void Math_Vec3f_Sum(Vec3f* a, Vec3f* b, Vec3f* dest);
 void Math_Vec3f_Diff(Vec3f* a, Vec3f* b, Vec3f* dest);
 void Math_Vec3s_DiffToVec3f(Vec3f* dest, Vec3s* a, Vec3s* b);
@@ -1467,36 +1479,6 @@ void Math3D_DrawSphere(PlayState* play, Sphere16* sph);
 void Math3D_DrawCylinder(PlayState* play, Cylinder16* cyl);
 s16 Math_Atan2S(f32 x, f32 y);
 f32 Math_Atan2F(f32 x, f32 y);
-void Matrix_Init(GameState* gameState);
-void Matrix_Push(void);
-void Matrix_Pop(void);
-void Matrix_Get(MtxF* dest);
-void Matrix_Put(MtxF* src);
-void Matrix_Mult(MtxF* mf, u8 mode);
-void Matrix_Translate(f32 x, f32 y, f32 z, u8 mode);
-void Matrix_Scale(f32 x, f32 y, f32 z, u8 mode);
-void Matrix_RotateX(f32 x, u8 mode);
-void Matrix_RotateY(f32 y, u8 mode);
-void Matrix_RotateZ(f32 z, u8 mode);
-void Matrix_RotateZYX(s16 x, s16 y, s16 z, u8 mode);
-void Matrix_TranslateRotateZYX(Vec3f* translation, Vec3s* rotation);
-void Matrix_SetTranslateRotateYXZ(f32 translateX, f32 translateY, f32 translateZ, Vec3s* rot);
-Mtx* Matrix_MtxFToMtx(MtxF* src, Mtx* dest);
-Mtx* Matrix_ToMtx(Mtx* dest, char* file, s32 line);
-Mtx* Matrix_NewMtx(GraphicsContext* gfxCtx, char* file, s32 line);
-Mtx* Matrix_MtxFToNewMtx(MtxF* src, GraphicsContext* gfxCtx);
-void Matrix_MultVec3f(Vec3f* src, Vec3f* dest);
-void Matrix_MtxFCopy(MtxF* dest, MtxF* src);
-void Matrix_MtxToMtxF(Mtx* src, MtxF* dest);
-void Matrix_MultVec3fExt(Vec3f* src, Vec3f* dest, MtxF* mf);
-void Matrix_Transpose(MtxF* mf);
-void Matrix_ReplaceRotation(MtxF* mf);
-void Matrix_MtxFToYXZRotS(MtxF* mf, Vec3s* rotDest, s32 flag);
-void Matrix_MtxFToZYXRotS(MtxF* mf, Vec3s* rotDest, s32 flag);
-void Matrix_RotateAxis(f32 angle, Vec3f* axis, u8 mode);
-MtxF* Matrix_CheckFloats(MtxF* mf, char* file, s32 line);
-void Matrix_SetTranslateScaleMtx2(Mtx* mtx, f32 scaleX, f32 scaleY, f32 scaleZ, f32 translateX, f32 translateY,
-                                  f32 translateZ);
 u64* SysUcode_GetUCodeBoot(void);
 size_t SysUcode_GetUCodeBootSize(void);
 u64* SysUcode_GetUCode(void);

@@ -6,7 +6,7 @@ __pycache__/
 # Text editor remnants
 .vs/
 .idea/
-.vscode/
+.vscode/*
 CMakeLists.txt
 cmake-build-debug
 venv/
@@ -59,7 +59,6 @@ graphs/
 
 # Per-user configuration
 .python-version
-tools/gzinject/HackerOoT_compressed.z64.bak
-tools/gzinject/romc
-tools/gzinject/romcori
 assets.diff
+HackerOoT.bs1
+.vscode/c_cpp_properties.json

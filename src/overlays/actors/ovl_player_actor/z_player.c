@@ -761,6 +761,8 @@ static GetItemEntry sGetItemTable[] = {
     GET_ITEM_NONE,
     // GI_TEXT_0
     GET_ITEM_NONE,
+    // GI_RUPOOR
+    GET_ITEM(ITEM_RUPOOR, OBJECT_GI_RUPY, GID_RUPOOR, 0xF4, 0x02, CHEST_ANIM_SHORT),
 };
 
 #define GET_PLAYER_ANIM(group, type) D_80853914[group * PLAYER_ANIMTYPE_MAX + type]
@@ -4325,45 +4327,42 @@ s32 func_808382DC(Player* this, PlayState* play) {
             this->actor.colChkInfo.damage += this->unk_8A0;
             func_80837C0C(play, this, sp5C[this->unk_8A1 - 1], this->unk_8A4, this->unk_8A8, this->unk_8A2, 20);
         } else {
-            sp64 = (this->shieldQuad.base.acFlags & AC_BOUNCED) != 0;
 
-            //! @bug The second set of conditions here seems intended as a way for Link to "block" hits by rolling.
+            //! @corrected The second set of conditions here seems intended as a way for Link to "block" hits by rolling.
             // However, `Collider.atFlags` is a byte so the flag check at the end is incorrect and cannot work.
             // Additionally, `Collider.atHit` can never be set while already colliding as AC, so it's also bugged.
             // This behavior was later fixed in MM, most likely by removing both the `atHit` and `atFlags` checks.
-            if (sp64 || ((this->invincibilityTimer < 0) && (this->cylinder.base.acFlags & AC_HIT) &&
-                         (this->cylinder.info.atHit != NULL) && (this->cylinder.info.atHit->atFlags & 0x20000000))) {
+            if (((this->shieldQuad.base.acFlags & AC_BOUNCED) != 0) || ((this->invincibilityTimer < 0) && (this->cylinder.base.acFlags & AC_HIT))) {
 
                 Player_RequestRumble(this, 180, 20, 100, 0);
 
-                if (!Player_IsChildWithHylianShield(this)) {
-                    if (this->invincibilityTimer >= 0) {
-                        LinkAnimationHeader* anim;
-                        s32 sp54 = Player_Action_80843188 == this->actionFunc;
+                if (this->invincibilityTimer >= 0) {
+                    LinkAnimationHeader* anim;
+                    s32 sp54 = Player_Action_80843188 == this->actionFunc;
 
-                        if (!func_808332B8(this)) {
-                            Player_SetupAction(play, this, Player_Action_808435C4, 0);
-                        }
-
-                        if (!(this->actionVar1 = sp54)) {
-                            Player_SetItemActionFunc(this, func_80834BD4);
-
-                            if (this->unk_870 < 0.5f) {
-                                anim = D_808543BC[Player_HoldsTwoHandedWeapon(this)];
-                            } else {
-                                anim = D_808543B4[Player_HoldsTwoHandedWeapon(this)];
-                            }
-                            LinkAnimation_PlayOnce(play, &this->skelAnimeUpper, anim);
-                        } else {
-                            Player_AnimPlayOnce(play, this, D_808543C4[Player_HoldsTwoHandedWeapon(this)]);
-                        }
+                    if (!func_808332B8(this)) {
+                        Player_SetupAction(play, this, Player_Action_808435C4, 0);
                     }
 
-                    if (!(this->stateFlags1 & (PLAYER_STATE1_13 | PLAYER_STATE1_14 | PLAYER_STATE1_21))) {
-                        this->speedXZ = -18.0f;
-                        this->yaw = this->actor.shape.rot.y;
+                    if (!(this->actionVar1 = sp54)) {
+                        Player_SetItemActionFunc(this, func_80834BD4);
+
+                        if (this->unk_870 < 0.5f) {
+                            anim = D_808543BC[Player_HoldsTwoHandedWeapon(this)];
+                        } else {
+                            anim = D_808543B4[Player_HoldsTwoHandedWeapon(this)];
+                        }
+                        LinkAnimation_PlayOnce(play, &this->skelAnimeUpper, anim);
+                    } else {
+                        Player_AnimPlayOnce(play, this, D_808543C4[Player_HoldsTwoHandedWeapon(this)]);
                     }
                 }
+
+                if (!(this->stateFlags1 & (PLAYER_STATE1_13 | PLAYER_STATE1_14 | PLAYER_STATE1_21))) {
+                    this->speedXZ = -18.0f;
+                    this->yaw = this->actor.shape.rot.y;
+                }
+                
 
                 if (sp64 && (this->shieldQuad.info.acHitInfo->toucher.effect == 1)) {
                     func_8083819C(this, play);
@@ -12865,6 +12864,9 @@ s32 func_8084DFF4(PlayState* play, Player* this) {
             (this->getItemId == GI_RECOVERY_HEART)) {
             Audio_PlaySfxGeneral(NA_SE_SY_GET_BOXITEM, &gSfxDefaultPos, 4, &gSfxDefaultFreqAndVolScale,
                                  &gSfxDefaultFreqAndVolScale, &gSfxDefaultReverb);
+        } else if (this->getItemId == GI_RUPOOR) {
+                Audio_PlaySfxGeneral((LINK_IS_CHILD) ? NA_SE_VO_LI_SURPRISE_KID : NA_SE_VO_LI_SURPRISE, &gSfxDefaultPos, 4, &gSfxDefaultFreqAndVolScale,
+                                   &gSfxDefaultFreqAndVolScale, &gSfxDefaultReverb);
         } else {
             if ((this->getItemId == GI_HEART_CONTAINER_2) || (this->getItemId == GI_HEART_CONTAINER) ||
                 ((this->getItemId == GI_HEART_PIECE) &&

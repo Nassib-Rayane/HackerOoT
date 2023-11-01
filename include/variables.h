@@ -180,6 +180,12 @@ extern u8 gSequenceFontTable[];
 extern u8 gSequenceTable[];
 extern u8 gSampleBankTable[];
 
+// CUSTOM
+extern TriNorm D_801EE150;
+extern TriNorm D_801EE188;
+extern TriNorm D_801EE6C8;
+extern TriNorm D_801EE700;
+
 extern SaveContext gSaveContext;
 extern RegEditor* gRegEditor;
 
@@ -252,6 +258,8 @@ extern u64 gGfxSPTaskStack[SP_DRAM_STACK_SIZE64]; // 0x400 bytes
 extern GfxPool gGfxPools[2]; // 0x24820 bytes
 extern u8 gAudioHeap[0x38000]; // 0x38000 bytes
 extern u8 gSystemHeap[];
+
+extern Gfx sSetupDL[SETUPDL_MAX][6];
 
 #ifdef ENABLE_WIDESCREEN
 extern u8 gIsUsingWidescreen;

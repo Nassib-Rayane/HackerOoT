@@ -237,7 +237,7 @@ NaviColor sNaviColorList[] = {
     { { 0, 255, 0, 255 }, { 0, 255, 0, 0 } },
 };
 
-// unused
+
 Gfx D_80115FF0[] = {
     gsSPEndDisplayList(),
 };
@@ -4020,6 +4020,15 @@ void Npc_TrackPoint(Actor* actor, NpcInteractInfo* interactInfo, s16 presetIndex
                              rotLimits.rotateYaw);
 }
 
+Gfx D_801AEF88[] = {
+    gsDPSetRenderMode(AA_EN | Z_CMP | Z_UPD | IM_RD | CLR_ON_CVG | CVG_DST_WRAP | ZMODE_XLU | FORCE_BL |
+                          G_RM_FOG_SHADE_A,
+                      AA_EN | Z_CMP | Z_UPD | IM_RD | CLR_ON_CVG | CVG_DST_WRAP | ZMODE_XLU | FORCE_BL |
+                          GBL_c2(G_BL_CLR_IN, G_BL_A_IN, G_BL_CLR_MEM, G_BL_1MA)),
+    gsDPSetAlphaCompare(G_AC_THRESHOLD),
+    gsSPEndDisplayList(),
+};
+
 Gfx* func_80034B28(GraphicsContext* gfxCtx) {
     Gfx* displayList;
 
@@ -4393,6 +4402,14 @@ void func_800359B8(Actor* actor, s16 arg1, Vec3s* arg2) {
 void func_80035B18(PlayState* play, Actor* actor, u16 textId) {
     Message_ContinueTextbox(play, textId);
     actor->textId = textId;
+}
+
+void func_800BE568(Actor* actor, ColliderSphere* collider) {
+    if (collider->info.acHitInfo->toucher.dmgFlags & (0x10000 | 0x2000 | 0x1000 | 0x800 | 0x20)) {
+        actor->world.rot.y = collider->base.ac->shape.rot.y;
+    } else {
+        actor->world.rot.y = Actor_WorldYawTowardActor(collider->base.ac, actor);
+    }
 }
 
 /**
