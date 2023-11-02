@@ -907,6 +907,10 @@ void Color_RGBA8_Copy(Color_RGBA8* dst, Color_RGBA8* src);
 void Sfx_PlaySfxCentered(u16 sfxId);
 void Sfx_PlaySfxCentered2(u16 sfxId);
 void Sfx_PlaySfxAtPos(Vec3f* projectedPos, u16 sfxId);
+void* Lib_SegmentedToVirtual(void* ptr);
+void* Lib_SegmentedToVirtualNull(void* ptr);
+void* Lib_VirtualToPhysical(void* ptr);
+void* Lib_PhysicalToVirtual(void* ptr);
 void Health_InitMeter(PlayState* play);
 void Health_UpdateMeter(PlayState* play);
 void Health_DrawMeter(PlayState* play);
@@ -1334,7 +1338,7 @@ void PreRender_SetValuesSave(PreRender* this, u32 width, u32 height, void* fbuf,
 void PreRender_Init(PreRender* this);
 void PreRender_SetValues(PreRender* this, u32 width, u32 height, void* fbuf, void* zbuf);
 void PreRender_Destroy(PreRender* this);
-#ifdef ENABLE_PAUSE_BG_AA
+// #ifdef ENABLE_PAUSE_BG_AA
 void func_800C170C(PreRender* this, Gfx** gfxP, void* buf, void* bufSave, u32 r, u32 g, u32 b, u32 a);
 void func_800C1AE8(PreRender* this, Gfx** gfxP, void* fbuf, void* fbufSave);
 void PreRender_SaveZBuffer(PreRender* this, Gfx** gfxP);
@@ -1345,7 +1349,7 @@ void func_800C213C(PreRender* this, Gfx** gfxP);
 void PreRender_RestoreFramebuffer(PreRender* this, Gfx** gfxP);
 void PreRender_CopyImageRegion(PreRender* this, Gfx** gfxP);
 void PreRender_ApplyFilters(PreRender* this);
-#endif
+// #endif
 void AudioMgr_StopAllSfx(void);
 void func_800C3C80(AudioMgr* audioMgr);
 void AudioMgr_HandleRetrace(AudioMgr* audioMgr);

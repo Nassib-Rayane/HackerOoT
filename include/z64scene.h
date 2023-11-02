@@ -6,6 +6,8 @@
 
 #include "command_macros_base.h"
 
+#define SPAWN_ROT_FLAGS(rotation, flags) (((rotation) << 7) | (flags))
+
 typedef struct {
     /* 0x00 */ RomFile sceneFile;
     /* 0x08 */ RomFile titleFile;
@@ -111,6 +113,48 @@ typedef struct {
     /* 0x08 */ u8    numBackgrounds;
     /* 0x0C */ RoomShapeImageMultiBgEntry* backgrounds;
 } RoomShapeImageMulti; // size = 0x10
+
+typedef struct {
+    /* 0x0 */ u8 r;
+    /* 0x1 */ u8 g;
+    /* 0x2 */ u8 b;
+    /* 0x3 */ u8 a;
+    /* 0x4 */ u8 lodFrac;
+} F3DPrimColor; // size = 0x5
+
+typedef struct {
+    /* 0x0 */ u8 r;
+    /* 0x1 */ u8 g;
+    /* 0x2 */ u8 b;
+    /* 0x3 */ u8 a;
+} F3DEnvColor; // size = 0x4
+
+typedef struct {
+    /* 0x0 */ u16 keyFrameLength;
+    /* 0x2 */ u16 keyFrameCount;
+    /* 0x4 */ F3DPrimColor* primColors;
+    /* 0x8 */ F3DEnvColor* envColors;
+    /* 0xC */ u16* keyFrames;
+} AnimatedMatColorParams; // size = 0x10
+
+typedef struct {
+    /* 0x0 */ s8 xStep;
+    /* 0x1 */ s8 yStep;
+    /* 0x2 */ u8 width;
+    /* 0x3 */ u8 height;
+} AnimatedMatTexScrollParams; // size = 0x4
+
+typedef struct {
+    /* 0x0 */ u16 keyFrameLength;
+    /* 0x4 */ void* textureList;
+    /* 0x8 */ u8* textureIndexList;
+} AnimatedMatTexCycleParams; // size = 0xC
+
+typedef struct {
+    /* 0x0 */ s8 segment;
+    /* 0x2 */ s16 type;
+    /* 0x4 */ void* params;
+} AnimatedMaterial; // size = 0x8
 
 typedef struct {
     /* 0x00 */ Vec3s boundsSphereCenter;
@@ -315,6 +359,12 @@ typedef struct {
     /* 0x04 */ u32 area;
 } SCmdMiscSettings;
 
+typedef struct {
+    /* 0x0 */ u8  code;
+    /* 0x1 */ u8  data1;
+    /* 0x4 */ void* segment;
+} SCmdTextureAnimations; // size = 0x8
+
 typedef union {
     SCmdBase              base;
     SCmdPlayerEntryList   playerEntryList;
@@ -342,6 +392,7 @@ typedef union {
     SCmdEchoSettings      echoSettings;
     SCmdMiscSettings      miscSettings;
     SCmdAltHeaders        altHeaders;
+     /* Command: 0x1A */ SCmdTextureAnimations textureAnimations;
 } SceneCmd; // size = 0x8
 
 #define DEFINE_SCENE(_0, _1, enum, _3, _4, _5) enum,
@@ -433,7 +484,9 @@ typedef enum {
     /* 50 */ SDC_FISHING_POND,
     /* 51 */ SDC_GANONS_TOWER_COLLAPSE_INTERIOR,
     /* 52 */ SDC_INSIDE_GANONS_CASTLE_COLLAPSE,
-    /* 53 */ SDC_MAX
+    /* 53 */ SCENE_DRAW_CFG_MAT_ANIM,
+    /* 54 */ SCENE_DRAW_CFG_NOTHING,
+    /* 55 */ SDC_MAX
 } SceneDrawConfig;
 
 // R_SCENE_CAM_TYPE values
@@ -480,7 +533,8 @@ typedef enum {
     /* 0x17 */ SCENE_CMD_ID_CUTSCENE_DATA,
     /* 0x18 */ SCENE_CMD_ID_ALTERNATE_HEADER_LIST,
     /* 0x19 */ SCENE_CMD_ID_MISC_SETTINGS,
-    /* 0x1A */ SCENE_CMD_ID_MAX
+    /* 0x1A */ SCENE_CMD_ID_ANIMATED_MATERIAL_LIST,
+    /* 0x1B */ SCENE_CMD_ID_MAX
 } SceneCommandTypeID;
 
 #define SCENE_CMD_SPAWN_LIST(numSpawns, spawnList) \
@@ -561,6 +615,9 @@ typedef enum {
 
 #define SCENE_CMD_MISC_SETTINGS(sceneCamType, worldMapLocation) \
     { SCENE_CMD_ID_MISC_SETTINGS, sceneCamType, CMD_W(worldMapLocation) }
+
+#define SCENE_CMD_ANIMATED_MATERIAL_LIST(matAnimList) \
+    { SCENE_CMD_ID_ANIMATED_MATERIAL_LIST, 0, CMD_PTR(matAnimList) }
 
 
 #endif

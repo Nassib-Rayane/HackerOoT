@@ -121,7 +121,10 @@
 /* 0x68 */ DEFINE_SCENE(syotes_scene, none, SCENE_SYOTES, SDC_DEFAULT, 0, 0)
 /* 0x69 */ DEFINE_SCENE(syotes2_scene, none, SCENE_SYOTES2, SDC_DEFAULT, 0, 0)
 /* 0x6A */ DEFINE_SCENE(sutaru_scene, none, SCENE_SUTARU, SDC_DEFAULT, 0, 0)
-/* 0x6B */ DEFINE_SCENE(hairal_niwa2_scene, g_pn_12, SCENE_HAIRAL_NIWA2, SDC_CASTLE_COURTYARD_GUARDS, 0, 0)
-/* 0x6C */ DEFINE_SCENE(sasatest_scene, none, SCENE_SASATEST, SDC_DEFAULT, 0, 0)
-/* 0x6D */ DEFINE_SCENE(testroom_scene, none, SCENE_TESTROOM, SDC_DEFAULT, 0, 0)
+/* 0x6B */ DEFINE_SCENE(sasatest_scene, none, SCENE_SASATEST, SDC_DEFAULT, 0, 0)
+/* 0x6C */ DEFINE_SCENE(testroom_scene, none, SCENE_TESTROOM, SDC_DEFAULT, 0, 0)
 #endif
+
+// Added scenes
+/* 0x6E */ DEFINE_SCENE(z2_backtown, none, SCENE_Z2_BACKTOWN, SCENE_DRAW_CFG_MAT_ANIM, 0, 0)
+/* 0x6E */ DEFINE_SCENE(z2_alley, none, SCENE_Z2_ALLEY, SCENE_DRAW_CFG_MAT_ANIM, 0, 0)

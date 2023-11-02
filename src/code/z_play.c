@@ -1513,6 +1513,7 @@ void Play_InitScene(PlayState* this, s32 spawn) {
     this->exitList = NULL;
     this->naviQuestHints = NULL;
     this->pathList = NULL;
+    this->sceneMaterialAnims = NULL;
 
     this->numActorEntries = 0;
 

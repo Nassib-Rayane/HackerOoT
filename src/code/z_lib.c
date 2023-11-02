@@ -623,3 +623,42 @@ void Sfx_PlaySfxAtPos(Vec3f* projectedPos, u16 sfxId) {
     Audio_PlaySfxGeneral(sfxId, projectedPos, 4, &gSfxDefaultFreqAndVolScale, &gSfxDefaultFreqAndVolScale,
                          &gSfxDefaultReverb);
 }
+
+void* Lib_SegmentedToVirtual(void* ptr) {
+    return SEGMENTED_TO_K0(ptr);
+}
+
+void* Lib_SegmentedToVirtualNull(void* ptr) {
+    if (((uintptr_t)ptr >> 28) == 0) {
+        return ptr;
+    } else {
+        return SEGMENTED_TO_K0(ptr);
+    }
+}
+
+/*
+ * Converts a 32-bit virtual address (0x80XXXXXX) to a 24-bit physical address (0xXXXXXX). The NULL case accounts for
+ * the NULL virtual address being 0x00000000 and not 0x80000000. Used by transition overlays, which store their
+ * addresses in 24-bit fields.
+ */
+void* Lib_VirtualToPhysical(void* ptr) {
+    if (ptr == NULL) {
+        return NULL;
+    } else {
+        return (void*)OS_K0_TO_PHYSICAL(ptr);
+    }
+}
+
+/*
+ * Converts a 24-bit physical address (0xXXXXXX) to a 32-bit virtual address (0x80XXXXXX). The NULL case accounts for
+ * the NULL virtual address being 0x00000000 and not 0x80000000. Used by transition overlays, which store their
+ * addresses in 24-bit fields.
+ */
+void* Lib_PhysicalToVirtual(void* ptr) {
+    if (ptr == NULL) {
+        return NULL;
+    } else {
+        return OS_PHYSICAL_TO_K0(ptr);
+    }
+}
+

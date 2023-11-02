@@ -1,4 +1,5 @@
 /* <z64.me> adapted from lzo1x_d.ch */
+#include "global.h"
 
 /* negative indexing distance */
 #define NINDEX 2
@@ -65,11 +66,11 @@ static unsigned char* refill(unsigned char* ip) {
     return ip;
 }
 
-void Yaz0_Decompress(unsigned int pstart /* physical rom offset of file      */
+void Yaz0_Decompress(uintptr_t pstart /* physical rom offset of file      */
                      ,
-                     unsigned char* op /* destination of decompressed data */
+                     u8* op /* destination of decompressed data */
                      ,
-                     unsigned int sz /* size of compressed file          */
+                     size_t sz /* size of compressed file          */
 ) {
     unsigned char* m_pos;
     unsigned char* ip;

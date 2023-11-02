@@ -189,7 +189,8 @@ static SceneSelectEntry sScenes[] = {
     { "Dark Link Room", MapSelect_LoadGame, ENTR_SUTARU_0 },
     { "Shooting Gallery Duplicate", MapSelect_LoadGame, ENTR_TEST_SHOOTING_GALLERY_0 },
     { "Depth Test", MapSelect_LoadGame, ENTR_DEPTH_TEST_0 },
-    { "Hyrule Garden Game (Broken)", MapSelect_LoadGame, ENTR_HAIRAL_NIWA2_0 },
+    { "Clock Town - North", MapSelect_LoadGame, ENTR_Z2_BACKTOWN_0 },
+    { "Clock Town - Alley", MapSelect_LoadGame, ENTR_Z2_ALLEY_0_3 },
 #endif
 };
 

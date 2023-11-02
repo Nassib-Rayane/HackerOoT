@@ -484,6 +484,11 @@ void Scene_CommandMiscSettings(PlayState* play, SceneCmd* cmd) {
     }
 }
 
+// SceneTableEntry Header Command 0x1A: Material Animations
+void Scene_CommandAnimatedMaterials(PlayState* play, SceneCmd* cmd) {
+    play->sceneMaterialAnims = Lib_SegmentedToVirtual(cmd->textureAnimations.segment);
+}
+
 void (*gSceneCmdHandlers[SCENE_CMD_ID_MAX])(PlayState*, SceneCmd*) = {
     Scene_CommandPlayerEntryList,          // SCENE_CMD_ID_SPAWN_LIST
     Scene_CommandActorEntryList,           // SCENE_CMD_ID_ACTOR_LIST
@@ -511,6 +516,7 @@ void (*gSceneCmdHandlers[SCENE_CMD_ID_MAX])(PlayState*, SceneCmd*) = {
     Scene_CommandCutsceneData,             // SCENE_CMD_ID_CUTSCENE_DATA
     Scene_CommandAlternateHeaderList,      // SCENE_CMD_ID_ALTERNATE_HEADER_LIST
     Scene_CommandMiscSettings,             // SCENE_CMD_ID_MISC_SETTINGS
+    Scene_CommandAnimatedMaterials,    // SCENE_CMD_ID_ANIMATED_MATERIAL_LIST
 };
 
 RomFile sNaviQuestHintFiles[] = {

@@ -11693,22 +11693,6 @@ beginseg
 endseg
 
 beginseg
-    name "hairal_niwa2_scene"
-    compress
-    romalign 0x1000
-    include "build/assets/scenes/indoors/hairal_niwa2/hairal_niwa2_scene.o"
-    number 2
-endseg
-
-beginseg
-    name "hairal_niwa2_room_0"
-    compress
-    romalign 0x1000
-    include "build/assets/scenes/indoors/hairal_niwa2/hairal_niwa2_room_0.o"
-    number 3
-endseg
-
-beginseg
     name "sutaru_scene"
     compress
     romalign 0x1000
@@ -11874,5 +11858,37 @@ beginseg
     include "build/assets/scenes/dungeons/ydan/ydan_room_1_main.o"
     include "build/assets/scenes/dungeons/ydan/ydan_room_1_model_info.o"
     include "build/assets/scenes/dungeons/ydan/ydan_room_1_model.o"
+    number 3
+endseg
+
+beginseg
+    name "z2_backtown"
+    compress
+    romalign 0x1000
+    include "build/assets/scenes/overworld/z2_backtown/z2_backtown_scene.o"
+    number 2
+endseg
+
+beginseg
+    name "z2_backtown_room_00"
+    compress
+    romalign 0x1000
+    include "build/assets/scenes/overworld/z2_backtown/z2_backtown_room_00.o"
+    number 3
+endseg
+
+beginseg
+    name "z2_alley"
+    compress
+    romalign 0x1000
+    include "build/assets/scenes/overworld/z2_alley/z2_alley_scene.o"
+    number 2
+endseg
+
+beginseg
+    name "z2_alley_room_00"
+    compress
+    romalign 0x1000
+    include "build/assets/scenes/overworld/z2_alley/z2_alley_room_00.o"
     number 3
 endseg
