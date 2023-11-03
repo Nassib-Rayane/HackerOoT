@@ -11892,3 +11892,19 @@ beginseg
     include "build/assets/scenes/overworld/z2_alley/z2_alley_room_00.o"
     number 3
 endseg
+
+beginseg
+    name "Z2_CLOCKTOWER"
+    compress
+    romalign 0x1000
+    include "build/assets/scenes/overworld/Z2_CLOCKTOWER/Z2_CLOCKTOWER_scene.o"
+    number 2
+endseg
+
+beginseg
+    name "Z2_CLOCKTOWER_room_00"
+    compress
+    romalign 0x1000
+    include "build/assets/scenes/overworld/Z2_CLOCKTOWER/Z2_CLOCKTOWER_room_00.o"
+    number 3
+endseg

@@ -1143,18 +1143,23 @@ void Play_Draw(PlayState* this) {
         // The billboard matrix temporarily stores the viewing matrix
         Matrix_MtxToMtxF(&this->view.viewing, &this->billboardMtxF);
         Matrix_MtxToMtxF(&this->view.projection, &this->viewProjectionMtxF);
-        Matrix_Mult(&this->viewProjectionMtxF, MTXMODE_NEW);
-        // The billboard is still a viewing matrix at this stage
-        Matrix_Mult(&this->billboardMtxF, MTXMODE_APPLY);
-        Matrix_Get(&this->viewProjectionMtxF);
-        this->billboardMtxF.mf[0][3] = this->billboardMtxF.mf[1][3] = this->billboardMtxF.mf[2][3] =
-            this->billboardMtxF.mf[3][0] = this->billboardMtxF.mf[3][1] = this->billboardMtxF.mf[3][2] = 0.0f;
-        // This transpose is where the viewing matrix is properly converted into a billboard matrix
+
+        SkinMatrix_MtxFMtxFMult(&this->viewProjectionMtxF, &this->billboardMtxF, &this->viewProjectionMtxF);
+
+        this->billboardMtxF.mf[3][2] = this->billboardMtxF.mf[3][1] = this->billboardMtxF.mf[3][0] =
+            this->billboardMtxF.mf[2][3] = this->billboardMtxF.mf[1][3] = this->billboardMtxF.mf[0][3] = 0.0f;
+
         Matrix_Transpose(&this->billboardMtxF);
-        this->billboardMtx = Matrix_MtxFToMtx(Matrix_CheckFloats(&this->billboardMtxF, "../z_play.c", 4005),
-                                              Graph_Alloc(gfxCtx, sizeof(Mtx)));
+
+        this->billboardMtx = GRAPH_ALLOC(this->state.gfxCtx, 2 * sizeof(Mtx));
+
+        Matrix_MtxFToMtx(&this->billboardMtxF, this->billboardMtx);
+        Matrix_RotateY(BINANG_TO_RAD((s16)(Camera_GetCamDirYaw(GET_ACTIVE_CAM(this)) + 0x8000)), MTXMODE_NEW);
+        Matrix_ToMtx(this->billboardMtx + 1, __FILE__, __LINE__);
 
         gSPSegment(POLY_OPA_DISP++, 0x01, this->billboardMtx);
+        gSPSegment(POLY_XLU_DISP++, 0x01, this->billboardMtx);
+        gSPSegment(OVERLAY_DISP++, 0x01, this->billboardMtx);
 
         if ((R_HREG_MODE != HREG_MODE_PLAY) || R_PLAY_DRAW_COVER_ELEMENTS) {
             Gfx* gfxP;

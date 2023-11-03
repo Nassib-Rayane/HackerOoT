@@ -191,6 +191,7 @@ static SceneSelectEntry sScenes[] = {
     { "Depth Test", MapSelect_LoadGame, ENTR_DEPTH_TEST_0 },
     { "Clock Town - North", MapSelect_LoadGame, ENTR_Z2_BACKTOWN_0 },
     { "Clock Town - Alley", MapSelect_LoadGame, ENTR_Z2_ALLEY_0_3 },
+    { "Clock Town - South", MapSelect_LoadGame, ENTR_Z2_CLOCKTOWER_0 },
 #endif
 };
 
