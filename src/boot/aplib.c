@@ -10,6 +10,7 @@
  *
  * http://www.ibsensoftware.com/
  */
+#include "global.h" 
 static struct decoder dec;
 
 /* block copy, with desired overlapping behavior */
@@ -211,8 +212,8 @@ static inline void* aP_depack(void* source, unsigned char* destination) {
     return destination;
 }
 
-void Yaz0_Decompress(unsigned rom, unsigned char* dst, unsigned compSz) {
-    dec.pstart = rom;
+void Yaz0_Decompress(uintptr_t romStart, u8* dst, size_t size) {
+    dec.pstart = romStart;
     dec.buf_end = dec.buf + sizeof(dec.buf);
     dst = aP_depack(dec.buf_end, dst);
 }

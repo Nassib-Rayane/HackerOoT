@@ -129,7 +129,10 @@ void EnBomChu_CrossProduct(Vec3f* a, Vec3f* b, Vec3f* dest) {
     dest->z = (a->x * b->y) - (a->y * b->x);
 }
 
-void EnBomChu_UpdateFloorPoly(EnBomChu* this, CollisionPoly* floorPoly, PlayState* play) {
+/**
+ * Returns true if floorPoly is valid for the Bombchu to move on, false otherwise.
+ */
+s32 EnBomChu_UpdateFloorPoly(EnBomChu* this, CollisionPoly* floorPoly, PlayState* play) {
     Vec3f normal;
     Vec3f vec;
     f32 angle;
@@ -139,63 +142,78 @@ void EnBomChu_UpdateFloorPoly(EnBomChu* this, CollisionPoly* floorPoly, PlayStat
 
     this->actor.floorPoly = floorPoly;
 
-    normal.x = COLPOLY_GET_NORMAL(floorPoly->normal.x);
-    normal.y = COLPOLY_GET_NORMAL(floorPoly->normal.y);
-    normal.z = COLPOLY_GET_NORMAL(floorPoly->normal.z);
+    if (floorPoly != NULL) {
+        normal.x = COLPOLY_GET_NORMAL(floorPoly->normal.x);
+        normal.y = COLPOLY_GET_NORMAL(floorPoly->normal.y);
+        normal.z = COLPOLY_GET_NORMAL(floorPoly->normal.z);
+    } else {
+        EnBomChu_Explode(this, play);
+        return false;
+    }
 
     normDotUp = DOTXYZ(normal, this->axisUp);
 
-    if (!(fabsf(normDotUp) >= 1.0f)) {
-        angle = Math_FAcosF(normDotUp);
-
-        if (!(angle < 0.001f)) {
-            EnBomChu_CrossProduct(&this->axisUp, &normal, &vec);
-            //! @bug this function expects a unit vector but `vec` is not normalized
-            Matrix_RotateAxis(angle, &vec, MTXMODE_NEW);
-
-            Matrix_MultVec3f(&this->axisLeft, &vec);
-            this->axisLeft = vec;
-
-            EnBomChu_CrossProduct(&this->axisLeft, &normal, &this->axisForwards);
-
-            magnitude = Math3D_Vec3fMagnitude(&this->axisForwards);
-
-            if (magnitude < 0.001f) {
-                EnBomChu_Explode(this, play);
-                return;
-            }
-
-            this->axisForwards.x *= 1.0f / magnitude;
-            this->axisForwards.y *= 1.0f / magnitude;
-            this->axisForwards.z *= 1.0f / magnitude;
-
-            this->axisUp = normal;
-
-            if (1) {}
-
-            // mf = (axisLeft | axisUp | axisForwards)
-
-            mf.xx = this->axisLeft.x;
-            mf.yx = this->axisLeft.y;
-            mf.zx = this->axisLeft.z;
-
-            mf.xy = normal.x;
-            mf.yy = normal.y;
-            mf.zy = normal.z;
-
-            mf.xz = this->axisForwards.x;
-            mf.yz = this->axisForwards.y;
-            mf.zz = this->axisForwards.z;
-
-            Matrix_MtxFToYXZRotS(&mf, &this->actor.world.rot, 0);
-
-            // A hack for preventing bombchus from sticking to ledges.
-            // The visual rotation reverts the sign inversion (shape.rot.x = -world.rot.x).
-            // The better fix would be making Actor_UpdateVelocityXYZ compute XYZ velocity better,
-            // or not using it and make the bombchu compute its own velocity.
-            this->actor.world.rot.x = -this->actor.world.rot.x;
-        }
+    if (fabsf(normDotUp) >= 0.999f) {
+        return false;
     }
+
+    angle = Math_FAcosF(normDotUp);
+    angle = Math_FAcosF(normDotUp);
+    if (angle < 0.001f) {
+        return false;
+    }
+
+    EnBomChu_CrossProduct(&this->axisUp, &normal, &vec);
+    magnitude = Math3D_Vec3fMagnitude(&vec);
+    if (magnitude < 0.001f) {
+        EnBomChu_Explode(this, play);
+        return false;
+    }
+    
+    Matrix_RotateAxis(angle, &vec, MTXMODE_NEW);
+
+    Matrix_MultVec3f(&this->axisLeft, &vec);
+    this->axisLeft = vec;
+
+    EnBomChu_CrossProduct(&this->axisLeft, &normal, &this->axisForwards);
+
+    magnitude = Math3D_Vec3fMagnitude(&this->axisForwards);
+
+    if (magnitude < 0.001f) {
+        EnBomChu_Explode(this, play);
+        return 1;
+    }
+
+    this->axisForwards.x *= 1.0f / magnitude;
+    this->axisForwards.y *= 1.0f / magnitude;
+    this->axisForwards.z *= 1.0f / magnitude;
+
+    this->axisUp = normal;
+
+    // mf = (axisLeft | axisUp | axisForwards)
+
+    mf.xx = this->axisLeft.x;
+    mf.yx = this->axisLeft.y;
+    mf.zx = this->axisLeft.z;
+
+    mf.xy = normal.x;
+    mf.yy = normal.y;
+    mf.zy = normal.z;
+
+    mf.xz = this->axisForwards.x;
+    mf.yz = this->axisForwards.y;
+    mf.zz = this->axisForwards.z;
+
+    Matrix_MtxFToYXZRotS(&mf, &this->actor.world.rot, 0);
+
+    // A hack for preventing bombchus from sticking to ledges.
+    // The visual rotation reverts the sign inversion (shape.rot.x = -world.rot.x).
+    // The better fix would be making Actor_UpdateVelocityXYZ compute XYZ velocity better,
+    // or not using it and make the bombchu compute its own velocity.
+    this->actor.world.rot.x = -this->actor.world.rot.x;
+
+    
+    return 1;
 }
 
 void EnBomChu_WaitForRelease(EnBomChu* this, PlayState* play) {
@@ -231,7 +249,7 @@ void EnBomChu_WaitForRelease(EnBomChu* this, PlayState* play) {
         this->axisLeft.z = Math_CosS(this->actor.shape.rot.y + 0x4000);
 
         this->actor.speed = 8.0f;
-        //! @bug there is no NULL check on the floor poly.  If the player is out of bounds the floor poly will be NULL
+        //! @corrected there is no NULL check on the floor poly.  If the player is out of bounds the floor poly will be NULL
         //! and will cause a crash inside this function.
         EnBomChu_UpdateFloorPoly(this, this->actor.floorPoly, play);
         this->actor.flags |= ACTOR_FLAG_0; // make chu targetable
@@ -247,6 +265,7 @@ void EnBomChu_Move(EnBomChu* this, PlayState* play) {
     s32 bgIdUpDown;
     s32 i;
     f32 lineLength;
+    s32 isFloorPolyValid;
     Vec3f posA;
     Vec3f posB;
     Vec3f posSide;
@@ -254,6 +273,7 @@ void EnBomChu_Move(EnBomChu* this, PlayState* play) {
 
     this->actor.speed = 8.0f;
     lineLength = this->actor.speed * 2.0f;
+    isFloorPolyValid = false;
 
     if (this->timer != 0) {
         this->timer--;
@@ -286,13 +306,13 @@ void EnBomChu_Move(EnBomChu* this, PlayState* play) {
                                     &bgIdSide) &&
             !(SurfaceType_GetWallFlags(&play->colCtx, polySide, bgIdSide) & WALL_FLAG_CRAWLSPACE) &&
             !SurfaceType_IsIgnoredByProjectiles(&play->colCtx, polySide, bgIdSide)) {
-            EnBomChu_UpdateFloorPoly(this, polySide, play);
+            isFloorPolyValid = EnBomChu_UpdateFloorPoly(this, polySide, play);
             this->actor.world.pos = posSide;
             this->actor.floorBgId = bgIdSide;
             this->actor.speed = 0.0f;
         } else {
             if (this->actor.floorPoly != polyUpDown) {
-                EnBomChu_UpdateFloorPoly(this, polyUpDown, play);
+                isFloorPolyValid = EnBomChu_UpdateFloorPoly(this, polyUpDown, play);
             }
 
             this->actor.world.pos = posUpDown;
@@ -325,7 +345,7 @@ void EnBomChu_Move(EnBomChu* this, PlayState* play) {
                                         &bgIdSide) &&
                 !(SurfaceType_GetWallFlags(&play->colCtx, polySide, bgIdSide) & WALL_FLAG_CRAWLSPACE) &&
                 !SurfaceType_IsIgnoredByProjectiles(&play->colCtx, polySide, bgIdSide)) {
-                EnBomChu_UpdateFloorPoly(this, polySide, play);
+                isFloorPolyValid = EnBomChu_UpdateFloorPoly(this, polySide, play);
                 this->actor.world.pos = posSide;
                 this->actor.floorBgId = bgIdSide;
                 break;
@@ -337,11 +357,12 @@ void EnBomChu_Move(EnBomChu* this, PlayState* play) {
             EnBomChu_Explode(this, play);
         }
     }
-
-    Math_ScaledStepToS(&this->actor.shape.rot.x, -this->actor.world.rot.x, 0x800);
-    Math_ScaledStepToS(&this->actor.shape.rot.y, this->actor.world.rot.y, 0x800);
-    Math_ScaledStepToS(&this->actor.shape.rot.z, this->actor.world.rot.z, 0x800);
-
+    if (isFloorPolyValid) {
+        Math_ScaledStepToS(&this->actor.shape.rot.x, -this->actor.world.rot.x, 0x800);
+        Math_ScaledStepToS(&this->actor.shape.rot.y, this->actor.world.rot.y, 0x800);
+        Math_ScaledStepToS(&this->actor.shape.rot.z, this->actor.world.rot.z, 0x800);
+    }
+    
     func_8002F8F0(&this->actor, NA_SE_IT_BOMBCHU_MOVE - SFX_FLAG);
 }
 

@@ -28,11 +28,11 @@
 #define ENABLE_NO_CLIP
 
 /**** [INPUT DISPLAY] ****/
-// #define SHOW_INPUT_DISPLAY
+#define SHOW_INPUT_DISPLAY
 
 /**** [CUTSCENE FEATURES] ****/
 // #define SHOW_CS_INFOS
-// #define ENABLE_CS_CONTROL
+#define ENABLE_CS_CONTROL
 
 // Allow skip on the title screen (if using ``ENABLE_CS_CONTROL``)
 #define CS_CTRL_SKIP_TITLE_SCREEN false
@@ -45,13 +45,13 @@
 // #define ENABLE_FRAMERATE_OPTIONS
 
 /**** [MAP SELECT] ****/
-// #define ENABLE_MAP_SELECT
+#define ENABLE_MAP_SELECT
 
 /**** [DEBUG FILE 1] ****/
 #define ENABLE_DEBUG_SAVE
 
 /**** [TEST SCENES] ****/
-// #define INCLUDE_TEST_SCENES
+#define INCLUDE_TEST_SCENES
 
 // -------------------------------------------
 
@@ -60,13 +60,13 @@
  */
 
 /**** [INVENTORY EDITOR] ****/
-// #define ENABLE_INV_EDITOR
+#define ENABLE_INV_EDITOR
 
 /**** [EVENT EDITOR] ****/
-// #define ENABLE_EVENT_EDITOR
+#define ENABLE_EVENT_EDITOR
 
 /**** [REGISTERS EDITOR] ****/
-// #define ENABLE_REG_EDITOR
+#define ENABLE_REG_EDITOR
 
 // -------------------------------------------
 
@@ -76,7 +76,7 @@
 
 /**** [CAMERA DEBUGGER] ****/
 // Includes a cutscene debugger/exporter
-// #define ENABLE_CAMERA_DEBUGGER
+#define ENABLE_CAMERA_DEBUGGER
 
 /**** [AUDIO DEBUGGER] ****/
 // #define ENABLE_AUDIO_DEBUGGER
@@ -89,6 +89,6 @@
 
 /**** [SPEEDMETER] ****/
 // This looks like a profiler
-// #define ENABLE_SPEEDMETER
+#define ENABLE_SPEEDMETER
 
 #endif

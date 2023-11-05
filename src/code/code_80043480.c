@@ -12,6 +12,13 @@ void DynaPolyActor_Init(DynaPolyActor* dynaActor, s32 transformFlags) {
     dynaActor->unk_154 = 0.0f;
 }
 
+void DynaPolyActor_LoadMesh(PlayState* play, DynaPolyActor* dynaActor, CollisionHeader* meshHeader) {
+    CollisionHeader* header = NULL;
+
+    CollisionHeader_GetVirtual(meshHeader, &header);
+    dynaActor->bgId = DynaPoly_SetBgActor(play, &play->colCtx.dyna, &dynaActor->actor, header);
+}
+
 void DynaPolyActor_UnsetAllInteractFlags(DynaPolyActor* dynaActor) {
     dynaActor->interactFlags = 0;
 }

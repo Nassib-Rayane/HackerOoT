@@ -54,7 +54,7 @@ static ColliderCylinderInit sCylinderInit = {
     { 13, 13, 0, { 0 } },
 };
 
-static s16 sObjectIDs[] = {
+static s16 sObjectIds[] = {
     OBJECT_DEKUNUTS, OBJECT_HINTNUTS, OBJECT_SHOPNUTS, OBJECT_DNS, OBJECT_DNK,
 };
 
@@ -69,9 +69,9 @@ void EnNutsball_Init(Actor* thisx, PlayState* play) {
     ActorShape_Init(&this->actor.shape, 400.0f, ActorShadow_DrawCircle, 13.0f);
     Collider_InitCylinder(play, &this->collider);
     Collider_SetCylinder(play, &this->collider, &this->actor, &sCylinderInit);
-    this->objBankIndex = Object_GetIndex(&play->objectCtx, sObjectIDs[this->actor.params]);
+    this->requiredObjectSlot = Object_GetSlot(&play->objectCtx, sObjectIds[NUTSBALL_GET_TYPE(&this->actor)]);
 
-    if (this->objBankIndex < 0) {
+    if (this->requiredObjectSlot < 0) {
         Actor_Kill(&this->actor);
     } else {
         this->actionFunc = func_80ABBB34;
@@ -85,8 +85,8 @@ void EnNutsball_Destroy(Actor* thisx, PlayState* play) {
 }
 
 void func_80ABBB34(EnNutsball* this, PlayState* play) {
-    if (Object_IsLoaded(&play->objectCtx, this->objBankIndex)) {
-        this->actor.objBankIndex = this->objBankIndex;
+    if (Object_IsLoaded(&play->objectCtx, this->requiredObjectSlot)) {
+        this->actor.objectSlot = this->requiredObjectSlot;
         this->actor.draw = EnNutsball_Draw;
         this->actor.shape.rot.y = 0;
         this->timer = 30;
@@ -99,7 +99,7 @@ void func_80ABBBA8(EnNutsball* this, PlayState* play) {
     Player* player = GET_PLAYER(play);
     Vec3s sp4C;
     Vec3f sp40;
-
+    
     this->timer--;
 
     if (this->timer == 0) {
@@ -109,8 +109,8 @@ void func_80ABBBA8(EnNutsball* this, PlayState* play) {
     this->actor.home.rot.z += 0x2AA8;
 
     if ((this->actor.bgCheckFlags & BGCHECKFLAG_WALL) || (this->actor.bgCheckFlags & BGCHECKFLAG_GROUND) ||
-        (this->collider.base.atFlags & AT_HIT) || (this->collider.base.acFlags & AC_HIT) ||
-        (this->collider.base.ocFlags1 & OC1_HIT)) {
+         (this->collider.base.atFlags & AT_HIT) || (this->collider.base.acFlags & AC_HIT) ||
+         (this->collider.base.ocFlags1 & OC1_HIT)) {
         // Checking if the player is using a shield that reflects projectiles
         // And if so, reflects the projectile on impact
         if ((player->currentShield == PLAYER_SHIELD_DEKU) ||
@@ -153,7 +153,7 @@ void EnNutsball_Update(Actor* thisx, PlayState* play) {
 
         Actor_MoveXZGravity(&this->actor);
         Actor_UpdateBgCheckInfo(play, &this->actor, 10, sCylinderInit.dim.radius, sCylinderInit.dim.height,
-                                UPDBGCHECKINFO_FLAG_0 | UPDBGCHECKINFO_FLAG_2);
+                                UPDBGCHECKINFO_FLAG_0 | UPDBGCHECKINFO_FLAG_2 | UPDBGCHECKINFO_FLAG_8);
         Collider_UpdateCylinder(&this->actor, &this->collider);
 
         this->actor.flags |= ACTOR_FLAG_24;
@@ -165,16 +165,16 @@ void EnNutsball_Update(Actor* thisx, PlayState* play) {
 }
 
 void EnNutsball_Draw(Actor* thisx, PlayState* play) {
-    s32 pad;
+    EnNutsball* this = (EnNutsball*)thisx;
 
     OPEN_DISPS(play->state.gfxCtx);
 
     Gfx_SetupDL_25Opa(play->state.gfxCtx);
     Matrix_Mult(&play->billboardMtxF, MTXMODE_APPLY);
-    Matrix_RotateZ(thisx->home.rot.z * 9.58738e-05f, MTXMODE_APPLY);
+    Matrix_RotateZ(this->actor.home.rot.z * 9.58738e-05f, MTXMODE_APPLY);
     gSPMatrix(POLY_OPA_DISP++, Matrix_NewMtx(play->state.gfxCtx, "../z_en_nutsball.c", 333),
               G_MTX_MODELVIEW | G_MTX_LOAD);
-    gSPDisplayList(POLY_OPA_DISP++, sDLists[thisx->params]);
+    gSPDisplayList(POLY_OPA_DISP++, sDLists[NUTSBALL_GET_TYPE(&this->actor)]);
 
     CLOSE_DISPS(play->state.gfxCtx);
 }

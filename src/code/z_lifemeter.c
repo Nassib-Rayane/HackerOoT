@@ -288,6 +288,13 @@ static void* sHeartTextures[] = {
     gHeartThreeQuarterTex, gHeartThreeQuarterTex, gHeartThreeQuarterTex, gHeartThreeQuarterTex,
 };
 
+static void* sHeartTexturesMM[] = {
+    gHeartFullTexMM,         gHeartQuarterTexMM,      gHeartQuarterTexMM,      gHeartQuarterTexMM,
+    gHeartQuarterTexMM,      gHeartQuarterTexMM,      gHeartHalfTexMM,         gHeartHalfTexMM,
+    gHeartHalfTexMM,         gHeartHalfTexMM,         gHeartHalfTexMM,         gHeartThreeQuarterTexMM,
+    gHeartThreeQuarterTexMM, gHeartThreeQuarterTexMM, gHeartThreeQuarterTexMM, gHeartThreeQuarterTexMM,
+};
+
 static void* sHeartDDTextures[] = {
     gDefenseHeartFullTex,         gDefenseHeartQuarterTex,      gDefenseHeartQuarterTex,
     gDefenseHeartQuarterTex,      gDefenseHeartQuarterTex,      gDefenseHeartQuarterTex,
@@ -372,9 +379,19 @@ void Health_DrawMeter(PlayState* play) {
             }
 
             if (heartIndex < fullHeartCount) {
-                heartBgImg = gHeartFullTex;
+                if (GET_EVENTCHKINF(0xA1)) {
+                    heartBgImg = gHeartFullTexMM;
+                }
+                else {
+                    heartBgImg = gHeartFullTex;
+                 }
             } else if (heartIndex == fullHeartCount) {
-                heartBgImg = sHeartTextures[curHeartFraction];
+                if (GET_EVENTCHKINF(0xA1)) {
+                    heartBgImg = sHeartTexturesMM[curHeartFraction];
+                }
+                else {
+                    heartBgImg = sHeartTextures[curHeartFraction];
+                 }
             } else {
                 heartBgImg = gHeartEmptyTex;
             }
@@ -510,16 +527,7 @@ void Health_UpdateBeatingHeart(PlayState* play) {
         if (interfaceCtx->beatingHeartOscillator <= 0) {
             interfaceCtx->beatingHeartOscillator = 0;
             interfaceCtx->beatingHeartOscillatorDirection = 0;
-
-            canPlayLowHealthSFX = (!Player_InCsMode(play) && (play->pauseCtx.state == 0));
-
-#if (defined ENABLE_INV_EDITOR || defined ENABLE_EVENT_EDITOR)
-            canPlayLowHealthSFX =
-                canPlayLowHealthSFX && (play->pauseCtx.debugState == 0) && Health_IsCritical() && !Play_InCsMode(play);
-#else
-            canPlayLowHealthSFX = (canPlayLowHealthSFX && Health_IsCritical() && !Play_InCsMode(play));
-#endif
-            if (canPlayLowHealthSFX) {
+            if (!Player_InCsMode(play) && !IS_PAUSED(&play->pauseCtx) && Health_IsCritical() && !Play_InCsMode(play)) {
 #ifdef ENABLE_LOW_HEALTH_BEEP
                 Sfx_PlaySfxCentered(NA_SE_SY_HITPOINT_ALARM);
 #endif

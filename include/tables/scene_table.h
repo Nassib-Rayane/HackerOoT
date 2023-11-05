@@ -11,7 +11,7 @@
  *    - Argument 5: ? (Unknown)
  *    - Argument 6: ? (Unknown)
  */
-/* 0x00 */ DEFINE_SCENE(ydan_scene, g_pn_06, SCENE_DEKU_TREE, SDC_DEKU_TREE, 1, 2)
+/* 0x00 */ DEFINE_SCENE(ydan_scene, none, SCENE_DEKU_TREE, SDC_DEFAULT, 0, 0)
 /* 0x01 */ DEFINE_SCENE(ddan_scene, g_pn_08, SCENE_DODONGOS_CAVERN, SDC_DODONGOS_CAVERN, 1, 3)
 /* 0x02 */ DEFINE_SCENE(bdan_scene, g_pn_07, SCENE_JABU_JABU, SDC_JABU_JABU, 1, 4)
 /* 0x03 */ DEFINE_SCENE(Bmori1_scene, g_pn_01, SCENE_FOREST_TEMPLE, SDC_FOREST_TEMPLE, 2, 5)
@@ -121,7 +121,12 @@
 /* 0x68 */ DEFINE_SCENE(syotes_scene, none, SCENE_SYOTES, SDC_DEFAULT, 0, 0)
 /* 0x69 */ DEFINE_SCENE(syotes2_scene, none, SCENE_SYOTES2, SDC_DEFAULT, 0, 0)
 /* 0x6A */ DEFINE_SCENE(sutaru_scene, none, SCENE_SUTARU, SDC_DEFAULT, 0, 0)
-/* 0x6B */ DEFINE_SCENE(hairal_niwa2_scene, g_pn_12, SCENE_HAIRAL_NIWA2, SDC_CASTLE_COURTYARD_GUARDS, 0, 0)
-/* 0x6C */ DEFINE_SCENE(sasatest_scene, none, SCENE_SASATEST, SDC_DEFAULT, 0, 0)
-/* 0x6D */ DEFINE_SCENE(testroom_scene, none, SCENE_TESTROOM, SDC_DEFAULT, 0, 0)
+/* 0x6B */ DEFINE_SCENE(sasatest_scene, none, SCENE_SASATEST, SDC_DEFAULT, 0, 0)
+/* 0x6C */ DEFINE_SCENE(testroom_scene, none, SCENE_TESTROOM, SDC_DEFAULT, 0, 0)
 #endif
+
+// Added scenes
+/* 0x6E */ DEFINE_SCENE(z2_backtown, none, SCENE_Z2_BACKTOWN, SCENE_DRAW_CFG_MAT_ANIM, 0, 0)
+/* 0x6E */ DEFINE_SCENE(z2_alley, none, SCENE_Z2_ALLEY, SCENE_DRAW_CFG_MAT_ANIM, 0, 0)
+/* 0x6E */ DEFINE_SCENE(Z2_CLOCKTOWER, none, SCENE_Z2_CLOCKTOWER, SCENE_DRAW_CFG_MAT_ANIM, 0, 0)
+/* 0x6E */ DEFINE_SCENE(Z2_TOWN, none, SCENE_Z2_TOWN, SCENE_DRAW_CFG_MAT_ANIM, 0, 0)

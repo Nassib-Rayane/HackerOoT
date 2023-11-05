@@ -231,7 +231,7 @@ void DmaMgr_DmaFromDriveRom(void* ram, uintptr_t rom, size_t size) {
  *
  * This function does not return.
  */
-void DmaMgr_Error(DmaRequest* req, const char* file, const char* errorName, const char* errorDesc) {
+NORETURN void DmaMgr_Error(DmaRequest* req, const char* file, const char* errorName, const char* errorDesc) {
     uintptr_t vrom = req->vromAddr;
     void* ram = req->dramAddr;
     size_t size = req->size;
@@ -533,6 +533,11 @@ void DmaMgr_Init(void) {
         if (iter->romEnd != 0) {
             sDmaMgrIsRomCompressed = true;
         }
+
+        /*osSyncPrintf(
+            "%3d %08x %08x %08x %08x %08x %c %s\n", idx, iter->vromStart, iter->vromEnd, iter->romStart, iter->romEnd,
+            (iter->romEnd != 0) ? iter->romEnd - iter->romStart : iter->vromEnd - iter->vromStart,
+            (((iter->romEnd != 0) ? iter->romEnd - iter->romStart : 0) > 0x10000) ? '*' : ' ', name ? *name : "");*/
 
         idx++;
         iter++;

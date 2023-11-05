@@ -46,7 +46,7 @@ MtxF* Matrix_GetCurrent(void) {
     return sCurrentMatrix;
 }
 
-void Matrix_Mult(MtxF* mf, u8 mode) {
+void Matrix_Mult(MtxF* mf, MatrixMode mode) {
     MtxF* cmf = Matrix_GetCurrent();
 
     if (mode == MTXMODE_APPLY) {
@@ -56,7 +56,7 @@ void Matrix_Mult(MtxF* mf, u8 mode) {
     }
 }
 
-void Matrix_Translate(f32 x, f32 y, f32 z, u8 mode) {
+void Matrix_Translate(f32 x, f32 y, f32 z, MatrixMode mode) {
     MtxF* cmf = sCurrentMatrix;
     f32 tx;
     f32 ty;
@@ -79,7 +79,7 @@ void Matrix_Translate(f32 x, f32 y, f32 z, u8 mode) {
     }
 }
 
-void Matrix_Scale(f32 x, f32 y, f32 z, u8 mode) {
+void Matrix_Scale(f32 x, f32 y, f32 z, MatrixMode mode) {
     MtxF* cmf = sCurrentMatrix;
 
     if (mode == MTXMODE_APPLY) {
@@ -100,7 +100,96 @@ void Matrix_Scale(f32 x, f32 y, f32 z, u8 mode) {
     }
 }
 
-void Matrix_RotateX(f32 x, u8 mode) {
+/**
+ * @brief Right-multiply by a rotation about the x axis
+ *      - APPLY: current * R -> current
+ *      - NEW: R -> current
+ *
+ * R is given by
+ *
+ * \f[
+ *  \begin{pmatrix}
+ *      1 & 0 & 0 & 0 \\
+ *      0 & c & -s & 0 \\
+ *      0 & s & c & 0 \\
+ *      0 & 0 & 0 & 1
+ *  \end{pmatrix}
+ * \f]
+ *
+ * where \f$ c = \cos x, s = \sin x \f$.
+ *
+ * @note The same as Matrix_RotateXF(), but uses a binary angle.
+ *
+ * @param x rotation angle (binary).
+ * @param mode APPLY or NEW.
+ *
+ * @remark original name: "Matrix_RotateX"
+ */
+void Matrix_RotateXS(s16 x, MatrixMode mode) {
+    MtxF* cmf;
+    f32 sin;
+    f32 cos;
+    f32 tempY;
+    f32 tempZ;
+
+    if (mode == MTXMODE_APPLY) {
+        if (x != 0) {
+            cmf = sCurrentMatrix;
+
+            sin = Math_SinS(x);
+            cos = Math_CosS(x);
+
+            tempY = cmf->xy;
+            tempZ = cmf->xz;
+            cmf->xy = tempY * cos + tempZ * sin;
+            cmf->xz = tempZ * cos - tempY * sin;
+
+            tempY = cmf->yy;
+            tempZ = cmf->yz;
+            cmf->yy = tempY * cos + tempZ * sin;
+            cmf->yz = tempZ * cos - tempY * sin;
+
+            tempY = cmf->zy;
+            tempZ = cmf->zz;
+            cmf->zy = tempY * cos + tempZ * sin;
+            cmf->zz = tempZ * cos - tempY * sin;
+
+            tempY = cmf->wy;
+            tempZ = cmf->wz;
+            cmf->wy = tempY * cos + tempZ * sin;
+            cmf->wz = tempZ * cos - tempY * sin;
+        }
+    } else {
+        cmf = sCurrentMatrix;
+
+        if (x != 0) {
+            sin = Math_SinS(x);
+            cos = Math_CosS(x);
+        } else {
+            sin = 0.0f;
+            cos = 1.0f;
+        }
+
+        cmf->yx = 0.0f;
+        cmf->zx = 0.0f;
+        cmf->wx = 0.0f;
+        cmf->xy = 0.0f;
+        cmf->wy = 0.0f;
+        cmf->xz = 0.0f;
+        cmf->wz = 0.0f;
+        cmf->xw = 0.0f;
+        cmf->yw = 0.0f;
+        cmf->zw = 0.0f;
+        cmf->xx = 1.0f;
+        cmf->ww = 1.0f;
+        cmf->yy = cos;
+        cmf->zz = cos;
+        cmf->zy = sin;
+        cmf->yz = -sin;
+    }
+}
+
+void Matrix_RotateX(f32 x, MatrixMode mode) {
     MtxF* cmf;
     f32 sin;
     f32 cos;
@@ -164,7 +253,96 @@ void Matrix_RotateX(f32 x, u8 mode) {
     }
 }
 
-void Matrix_RotateY(f32 y, u8 mode) {
+/**
+ * @brief Right-multiply by a rotation about the y axis
+ *      - APPLY: current * R -> current
+ *      - NEW: R -> current
+ *
+ * R is given by
+ *
+ * \f[
+ *  \begin{pmatrix}
+ *      c & 0 & s & 0 \\
+ *      0 & 1 & 0 & 0 \\
+ *      -s & 0 & c & 0 \\
+ *      0 & 0 & 0 & 1
+ *  \end{pmatrix}
+ * \f]
+ *
+ * where \f$ c = \cos y, s = \sin y \f$.
+ *
+ * @note The same as Matrix_RotateYF(), but uses a binary angle.
+ *
+ * @param y rotation angle (binary).
+ * @param mode APPLY or NEW.
+ *
+ * @remark original name: "Matrix_RotateY"
+ */
+void Matrix_RotateYS(s16 y, MatrixMode mode) {
+    MtxF* cmf;
+    f32 sin;
+    f32 cos;
+    f32 tempX;
+    f32 tempZ;
+
+    if (mode == MTXMODE_APPLY) {
+        if (y != 0) {
+            cmf = sCurrentMatrix;
+
+            sin = Math_SinS(y);
+            cos = Math_CosS(y);
+
+            tempX = cmf->xx;
+            tempZ = cmf->xz;
+            cmf->xx = tempX * cos - tempZ * sin;
+            cmf->xz = tempX * sin + tempZ * cos;
+
+            tempX = cmf->yx;
+            tempZ = cmf->yz;
+            cmf->yx = tempX * cos - tempZ * sin;
+            cmf->yz = tempX * sin + tempZ * cos;
+
+            tempX = cmf->zx;
+            tempZ = cmf->zz;
+            cmf->zx = tempX * cos - tempZ * sin;
+            cmf->zz = tempX * sin + tempZ * cos;
+
+            tempX = cmf->wx;
+            tempZ = cmf->wz;
+            cmf->wx = tempX * cos - tempZ * sin;
+            cmf->wz = tempX * sin + tempZ * cos;
+        }
+    } else {
+        cmf = sCurrentMatrix;
+
+        if (y != 0) {
+            sin = Math_SinS(y);
+            cos = Math_CosS(y);
+        } else {
+            sin = 0.0f;
+            cos = 1.0f;
+        }
+
+        cmf->yx = 0.0f;
+        cmf->wx = 0.0f;
+        cmf->xy = 0.0f;
+        cmf->zy = 0.0f;
+        cmf->wy = 0.0f;
+        cmf->yz = 0.0f;
+        cmf->wz = 0.0f;
+        cmf->xw = 0.0f;
+        cmf->yw = 0.0f;
+        cmf->zw = 0.0f;
+        cmf->yy = 1.0f;
+        cmf->ww = 1.0f;
+        cmf->xx = cos;
+        cmf->zz = cos;
+        cmf->zx = -sin;
+        cmf->xz = sin;
+    }
+}
+
+void Matrix_RotateY(f32 y, MatrixMode mode) {
     MtxF* cmf;
     f32 sin;
     f32 cos;
@@ -228,7 +406,7 @@ void Matrix_RotateY(f32 y, u8 mode) {
     }
 }
 
-void Matrix_RotateZ(f32 z, u8 mode) {
+void Matrix_RotateZ(f32 z, MatrixMode mode) {
     MtxF* cmf;
     f32 sin;
     f32 cos;
@@ -298,7 +476,7 @@ void Matrix_RotateZ(f32 z, u8 mode) {
  * `MTXMODE_APPLY`) gets transformed according to whatever the matrix was before adding the ZYX rotation.
  * Original Name: Matrix_RotateXYZ, changed to reflect rotation order.
  */
-void Matrix_RotateZYX(s16 x, s16 y, s16 z, u8 mode) {
+void Matrix_RotateZYX(s16 x, s16 y, s16 z, MatrixMode mode) {
     MtxF* cmf = sCurrentMatrix;
     f32 temp1;
     f32 temp2;
@@ -862,7 +1040,7 @@ void Matrix_MtxFToZYXRotS(MtxF* mf, Vec3s* rotDest, s32 flag) {
  * Rotate the matrix by `angle` radians around a unit vector `axis`.
  * NB: `axis` is assumed to be a unit vector.
  */
-void Matrix_RotateAxis(f32 angle, Vec3f* axis, u8 mode) {
+void Matrix_RotateAxis(f32 angle, Vec3f* axis, MatrixMode mode) {
     MtxF* cmf;
     f32 sin;
     f32 cos;

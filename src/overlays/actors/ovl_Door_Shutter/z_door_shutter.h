@@ -34,8 +34,16 @@ typedef enum {
     /* 0x05 */ SHUTTER_BOSS,
     /* 0x06 */ SHUTTER_GOHMA_BLOCK,
     /* 0x07 */ SHUTTER_FRONT_SWITCH_BACK_CLEAR,
+               SHUTTER_RUPEE_0,
+               SHUTTER_RUPEE_5,
+               SHUTTER_RUPEE_20,
     /* 0x0B */ SHUTTER_KEY_LOCKED = 11
 } DoorShutterType;
+
+typedef enum {
+    TEXT_YES,
+    TEXT_NO
+} DoorShutterMessageChoice;
 
 struct DoorShutter;
 
@@ -48,7 +56,7 @@ typedef struct DoorShutter {
     /* 0x016A */ u8 doorType;
     /* 0x016B */ u8 styleType;
     /* 0x016C */ u8 gfxType;
-    /* 0x016D */ s8 requiredObjBankIndex;
+    /* 0x016D */ s8 requiredObjectSlot;
     /* 0x016E */ s8 unlockTimer; // non-0 if the door is locked, ticks down while the door is unlocking
     /* 0x016F */ s8 actionTimer;
     /* 0x0170 */ f32 barsClosedAmount; // Ranges from 0.0f (unbarred) to 1.0f (barred)

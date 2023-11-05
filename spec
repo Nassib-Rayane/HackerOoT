@@ -388,9 +388,9 @@ beginseg
     include "build/data/unk_8012ABC0.data.o"
     include "build/src/code/z_view.o"
     include "build/src/code/z_vimode.o"
-    include "build/src/code/code_800ACE70.o"
+    include "build/src/code/z_viscvg.o"
     include "build/src/code/z_vismono.o"
-    include "build/src/code/code_800AD920.o"
+    include "build/src/code/z_viszbuf.o"
     include "build/src/code/z_vr_box.o"
     include "build/src/code/z_vr_box_draw.o"
     include "build/src/code/z_player_call.o"
@@ -574,13 +574,11 @@ beginseg
     include "build/src/overlays/gamestates/ovl_title/ovl_title_reloc.o"
 endseg
 
-#ifdef ENABLE_MAP_SELECT
 beginseg
     name "ovl_select"
     include "build/src/overlays/gamestates/ovl_select/z_select.o"
     include "build/src/overlays/gamestates/ovl_select/ovl_select_reloc.o"
 endseg
-#endif
 
 beginseg
     name "ovl_opening"
@@ -3879,6 +3877,25 @@ beginseg
 endseg
 
 beginseg
+    name "ovl_Box_Warp"
+    include "build/src/overlays/actors/ovl_Box_Warp/t_box_warp.o"
+    include "build/src/overlays/actors/ovl_Box_Warp/ovl_Box_Warp_reloc.o"
+endseg
+
+beginseg
+    name "ovl_Obj_Bell"
+    include "build/src/overlays/actors/ovl_Obj_Bell/z_obj_bell.o"
+    include "build/src/overlays/actors/ovl_Obj_Bell/ovl_Obj_Bell_reloc.o"
+endseg
+
+beginseg
+    name "ovl_En_Mkk"
+    compress
+    include "build/src/overlays/actors/ovl_En_Mkk/z_en_mkk.o"
+    include "build/src/overlays/actors/ovl_En_Mkk/ovl_En_Mkk_reloc.o"
+endseg
+
+beginseg
     name "gameplay_keep"
     compress
     romalign 0x1000
@@ -6934,6 +6951,21 @@ beginseg
 endseg
 
 beginseg
+    name "object_f52_obj"
+    romalign 0x1000
+    number 6
+    include "build/assets/objects/object_f52_obj/object_f52_obj.o"
+endseg
+
+beginseg
+    name "object_mkk"
+    compress
+    romalign 0x1000
+    number 6
+    include "build/assets/objects/object_mkk/object_mkk.o"
+endseg
+
+beginseg
     name "g_pn_01"
     compress
     romalign 0x1000
@@ -7826,110 +7858,6 @@ beginseg
     romalign 0x1000
     include "build/src/elf_message/elf_message_ydan.o"
     number 0
-endseg
-
-beginseg
-    name "ydan_scene"
-    compress
-    romalign 0x1000
-    include "build/assets/scenes/dungeons/ydan/ydan_scene.o"
-    number 2
-endseg
-
-beginseg
-    name "ydan_room_0"
-    compress
-    romalign 0x1000
-    include "build/assets/scenes/dungeons/ydan/ydan_room_0.o"
-    number 3
-endseg
-
-beginseg
-    name "ydan_room_1"
-    compress
-    romalign 0x1000
-    include "build/assets/scenes/dungeons/ydan/ydan_room_1.o"
-    number 3
-endseg
-
-beginseg
-    name "ydan_room_2"
-    compress
-    romalign 0x1000
-    include "build/assets/scenes/dungeons/ydan/ydan_room_2.o"
-    number 3
-endseg
-
-beginseg
-    name "ydan_room_3"
-    compress
-    romalign 0x1000
-    include "build/assets/scenes/dungeons/ydan/ydan_room_3.o"
-    number 3
-endseg
-
-beginseg
-    name "ydan_room_4"
-    compress
-    romalign 0x1000
-    include "build/assets/scenes/dungeons/ydan/ydan_room_4.o"
-    number 3
-endseg
-
-beginseg
-    name "ydan_room_5"
-    compress
-    romalign 0x1000
-    include "build/assets/scenes/dungeons/ydan/ydan_room_5.o"
-    number 3
-endseg
-
-beginseg
-    name "ydan_room_6"
-    compress
-    romalign 0x1000
-    include "build/assets/scenes/dungeons/ydan/ydan_room_6.o"
-    number 3
-endseg
-
-beginseg
-    name "ydan_room_7"
-    compress
-    romalign 0x1000
-    include "build/assets/scenes/dungeons/ydan/ydan_room_7.o"
-    number 3
-endseg
-
-beginseg
-    name "ydan_room_8"
-    compress
-    romalign 0x1000
-    include "build/assets/scenes/dungeons/ydan/ydan_room_8.o"
-    number 3
-endseg
-
-beginseg
-    name "ydan_room_9"
-    compress
-    romalign 0x1000
-    include "build/assets/scenes/dungeons/ydan/ydan_room_9.o"
-    number 3
-endseg
-
-beginseg
-    name "ydan_room_10"
-    compress
-    romalign 0x1000
-    include "build/assets/scenes/dungeons/ydan/ydan_room_10.o"
-    number 3
-endseg
-
-beginseg
-    name "ydan_room_11"
-    compress
-    romalign 0x1000
-    include "build/assets/scenes/dungeons/ydan/ydan_room_11.o"
-    number 3
 endseg
 
 beginseg
@@ -11740,7 +11668,6 @@ beginseg
     number 3
 endseg
 
-#ifdef INCLUDE_TEST_SCENES
 beginseg
     name "besitu_room_0"
     compress
@@ -11762,38 +11689,6 @@ beginseg
     compress
     romalign 0x1000
     include "build/assets/scenes/test_levels/depth_test/depth_test_room_0.o"
-    number 3
-endseg
-
-beginseg
-    name "hairal_niwa2_scene"
-    compress
-    romalign 0x1000
-    include "build/assets/scenes/indoors/hairal_niwa2/hairal_niwa2_scene.o"
-    number 2
-endseg
-
-beginseg
-    name "hairal_niwa2_room_0"
-    compress
-    romalign 0x1000
-    include "build/assets/scenes/indoors/hairal_niwa2/hairal_niwa2_room_0.o"
-    number 3
-endseg
-
-beginseg
-    name "sasatest_scene"
-    compress
-    romalign 0x1000
-    include "build/assets/scenes/test_levels/sasatest/sasatest_scene.o"
-    number 2
-endseg
-
-beginseg
-    name "sasatest_room_0"
-    compress
-    romalign 0x1000
-    include "build/assets/scenes/test_levels/sasatest/sasatest_room_0.o"
     number 3
 endseg
 
@@ -11916,4 +11811,116 @@ beginseg
     include "build/assets/scenes/test_levels/besitu/besitu_scene.o"
     number 2
 endseg
-#endif
+
+beginseg
+    name "sasatest_scene"
+    compress
+    romalign 0x1000
+    include "build/assets/scenes/test_levels/sasatest/sasatest_scene_main.o"
+    include "build/assets/scenes/test_levels/sasatest/sasatest_scene_col.o"
+    number 2
+endseg
+
+beginseg
+    name "sasatest_room_0"
+    compress
+    romalign 0x1000
+    include "build/assets/scenes/test_levels/sasatest/sasatest_room_0_main.o"
+    include "build/assets/scenes/test_levels/sasatest/sasatest_room_0_model_info.o"
+    include "build/assets/scenes/test_levels/sasatest/sasatest_room_0_model.o"
+    number 3
+endseg
+
+beginseg
+    name "ydan_scene"
+    compress
+    romalign 0x1000
+    include "build/assets/scenes/dungeons/ydan/ydan_scene_main.o"
+    include "build/assets/scenes/dungeons/ydan/ydan_scene_col.o"
+    include "build/assets/scenes/dungeons/ydan/ydan_scene_tex.o"
+    number 2
+endseg
+
+beginseg
+    name "ydan_room_0"
+    compress
+    romalign 0x1000
+    include "build/assets/scenes/dungeons/ydan/ydan_room_0_main.o"
+    include "build/assets/scenes/dungeons/ydan/ydan_room_0_model_info.o"
+    include "build/assets/scenes/dungeons/ydan/ydan_room_0_model.o"
+    number 3
+endseg
+
+beginseg
+    name "ydan_room_1"
+    compress
+    romalign 0x1000
+    include "build/assets/scenes/dungeons/ydan/ydan_room_1_main.o"
+    include "build/assets/scenes/dungeons/ydan/ydan_room_1_model_info.o"
+    include "build/assets/scenes/dungeons/ydan/ydan_room_1_model.o"
+    number 3
+endseg
+
+beginseg
+    name "z2_backtown"
+    compress
+    romalign 0x1000
+    include "build/assets/scenes/overworld/z2_backtown/z2_backtown_scene.o"
+    number 2
+endseg
+
+beginseg
+    name "z2_backtown_room_00"
+    compress
+    romalign 0x1000
+    include "build/assets/scenes/overworld/z2_backtown/z2_backtown_room_00.o"
+    number 3
+endseg
+
+beginseg
+    name "z2_alley"
+    compress
+    romalign 0x1000
+    include "build/assets/scenes/overworld/z2_alley/z2_alley_scene.o"
+    number 2
+endseg
+
+beginseg
+    name "z2_alley_room_00"
+    compress
+    romalign 0x1000
+    include "build/assets/scenes/overworld/z2_alley/z2_alley_room_00.o"
+    number 3
+endseg
+
+beginseg
+    name "Z2_CLOCKTOWER"
+    compress
+    romalign 0x1000
+    include "build/assets/scenes/overworld/Z2_CLOCKTOWER/Z2_CLOCKTOWER_scene.o"
+    number 2
+endseg
+
+beginseg
+    name "Z2_CLOCKTOWER_room_00"
+    compress
+    romalign 0x1000
+    include "build/assets/scenes/overworld/Z2_CLOCKTOWER/Z2_CLOCKTOWER_room_00.o"
+    number 3
+endseg
+
+beginseg
+    name "Z2_TOWN"
+    compress
+    romalign 0x1000
+    include "build/assets/scenes/overworld/Z2_TOWN/Z2_TOWN_scene.o"
+    number 2
+endseg
+
+beginseg
+    name "Z2_TOWN_room_00"
+    compress
+    romalign 0x1000
+    include "build/assets/scenes/overworld/Z2_TOWN/Z2_TOWN_room_00.o"
+    number 3
+endseg

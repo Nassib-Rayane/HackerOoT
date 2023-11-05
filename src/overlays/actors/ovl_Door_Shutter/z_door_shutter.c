@@ -25,13 +25,15 @@
 #include "assets/objects/object_demo_kekkai/object_demo_kekkai.h"
 #include "assets/objects/object_ouke_haka/object_ouke_haka.h"
 
-#define FLAGS ACTOR_FLAG_4
+#define FLAGS (ACTOR_FLAG_0 | ACTOR_FLAG_3 | ACTOR_FLAG_4 | ACTOR_FLAG_27)
+
 
 void DoorShutter_Init(Actor* thisx, PlayState* play2);
 void DoorShutter_Destroy(Actor* thisx, PlayState* play);
 void DoorShutter_Update(Actor* thisx, PlayState* play);
 void DoorShutter_Draw(Actor* thisx, PlayState* play);
 
+void DoorShutter_WaitForAsk(DoorShutter* this, PlayState* play);
 void DoorShutter_RequestQuakeAndRumble(PlayState* play, s16 quakeY, s16 quakeDuration, s16 camId);
 void DoorShutter_WaitForObject(DoorShutter* this, PlayState* play);
 void DoorShutter_WaitClear(DoorShutter* this, PlayState* play);
@@ -256,7 +258,7 @@ static s8 sTypeStyles[] = {
     DOORSHUTTER_STYLE_BOSS_DOOR,     // SHUTTER_BOSS
     DOORSHUTTER_STYLE_GOHMA_BLOCK,   // SHUTTER_GOHMA_BLOCK
     DOORSHUTTER_STYLE_FROM_SCENE,    // SHUTTER_FRONT_SWITCH_BACK_CLEAR
-    DOORSHUTTER_STYLE_PHANTOM_GANON, // SHUTTER_8
+    DOORSHUTTER_STYLE_FROM_SCENE,    // SHUTTER_8
     DOORSHUTTER_STYLE_FROM_SCENE,    // SHUTTER_9
     DOORSHUTTER_STYLE_FROM_SCENE,    // SHUTTER_A
     DOORSHUTTER_STYLE_FROM_SCENE,    // SHUTTER_KEY_LOCKED
@@ -275,7 +277,7 @@ typedef struct {
 } DoorShutterSceneInfo;
 
 static DoorShutterSceneInfo sSceneInfo[] = {
-    { SCENE_DEKU_TREE, DOORSHUTTER_STYLE_DEKU_TREE },
+    { SCENE_DEKU_TREE, DOORSHUTTER_STYLE_GENERIC },
     { SCENE_DODONGOS_CAVERN, DOORSHUTTER_STYLE_DODONGOS_CAVERN },
     { SCENE_DODONGOS_CAVERN_BOSS, DOORSHUTTER_STYLE_DODONGOS_CAVERN },
     { SCENE_JABU_JABU, DOORSHUTTER_STYLE_JABU_JABU },
@@ -341,6 +343,71 @@ void DoorShutter_SetupAction(DoorShutter* this, DoorShutterActionFunc actionFunc
     this->actionTimer = 0;
 }
 
+void DoorShutter_WaitForOpen(DoorShutter* this, PlayState* play) {
+    if (Message_GetState(&play->msgCtx) == TEXT_STATE_CHOICE && Message_ShouldAdvance(play)) {
+        Message_ContinueTextbox(play, 0x2070);
+    }
+    if (Actor_TextboxIsClosing(&this->dyna.actor, play)) {
+
+        DoorShutter_SetupAction(this, DoorShutter_Idle);
+    }
+}
+
+void DoorShutter_AskForRuppe(DoorShutter* this, PlayState* play) {
+    if (Message_GetState(&play->msgCtx) == TEXT_STATE_CHOICE && Message_ShouldAdvance(play)) {
+        switch (play->msgCtx.choiceIndex) {
+            case TEXT_YES:
+                switch (this->doorType) {
+                    case SHUTTER_RUPEE_20:
+                        if (gSaveContext.rupeeAccumulator >= 20) {
+                            Rupees_ChangeBy(-20);
+                            Flags_SetSwitch(play, DOORSHUTTER_GET_SWITCH_FLAG(&this->dyna.actor));
+                            Message_ContinueTextbox(play, 0x2070);
+                            DoorShutter_SetupAction(this, DoorShutter_WaitForOpen);
+                        } else {
+                            Message_ContinueTextbox(play, 0x2072);
+                            DoorShutter_SetupAction(this, DoorShutter_WaitForAsk);
+                        }
+                        break;
+                    case SHUTTER_RUPEE_5:
+                        if (gSaveContext.rupeeAccumulator >= 5) {
+                            Rupees_ChangeBy(-5);
+                            Flags_SetSwitch(play, DOORSHUTTER_GET_SWITCH_FLAG(&this->dyna.actor));
+                            Message_ContinueTextbox(play, 0x2070);
+                            DoorShutter_SetupAction(this, DoorShutter_WaitForOpen);
+                        } else {
+                            Message_ContinueTextbox(play, 0x2072);
+                            DoorShutter_SetupAction(this, DoorShutter_WaitForAsk);
+                        }
+                        break;
+                    default:
+                        if (gSaveContext.rupeeAccumulator == 0) {
+                            Flags_SetSwitch(play, DOORSHUTTER_GET_SWITCH_FLAG(&this->dyna.actor));
+                            Message_ContinueTextbox(play, 0x2070);
+                            DoorShutter_SetupAction(this, DoorShutter_WaitForOpen);
+                        } else {
+                            Message_ContinueTextbox(play, 0x2072);
+                            DoorShutter_SetupAction(this, DoorShutter_WaitForAsk);
+                        }
+                        break;
+                }
+                break;
+            case TEXT_NO:
+                Message_ContinueTextbox(play, 0x2072);
+                DoorShutter_SetupAction(this, DoorShutter_WaitForAsk);
+                break;
+        }
+    }
+}
+
+void DoorShutter_WaitForAsk(DoorShutter* this, PlayState* play) {
+    if (Actor_ProcessTalkRequest(&this->dyna.actor, play)) {
+        DoorShutter_SetupAction(this, DoorShutter_AskForRuppe);
+    } else {
+        func_8002F2CC(&this->dyna.actor, play, 120.0f);
+    }
+}
+
 /**
  * Setup the correct action depending on the door type.
  *
@@ -367,7 +434,7 @@ s32 DoorShutter_SetupDoor(DoorShutter* this, PlayState* play) {
                 doorType = SHUTTER_FRONT_CLEAR;
             } else if (doorType == SHUTTER_BOSS) {
                 doorType = SHUTTER_BACK_LOCKED;
-            } else {
+            } else if ((doorType < SHUTTER_RUPEE_0) || (doorType > SHUTTER_RUPEE_20)) {
                 doorType = SHUTTER;
             }
         }
@@ -392,6 +459,11 @@ s32 DoorShutter_SetupDoor(DoorShutter* this, PlayState* play) {
     } else if (doorType == SHUTTER_BACK_LOCKED) {
         DoorShutter_SetupAction(this, DoorShutter_Unopenable);
         return false;
+    } else if ((doorType >= SHUTTER_RUPEE_0 && doorType <= SHUTTER_RUPEE_20) &&
+               (!Flags_GetSwitch(play, DOORSHUTTER_GET_SWITCH_FLAG(&this->dyna.actor)))) {
+        this->dyna.actor.textId = 0x207E;
+        DoorShutter_SetupAction(this, DoorShutter_WaitForAsk);
+        return false;
     }
     DoorShutter_SetupAction(this, DoorShutter_Idle);
     return false;
@@ -402,7 +474,7 @@ void DoorShutter_Init(Actor* thisx, PlayState* play2) {
     PlayState* play = play2;
     s32 styleType;
     s32 pad;
-    s32 objectIndex;
+    s32 objectSlot;
     s32 i;
 
     Actor_ProcessInitChain(&this->dyna.actor, sInitChain);
@@ -432,9 +504,9 @@ void DoorShutter_Init(Actor* thisx, PlayState* play2) {
     } else { // DOORSHUTTER_STYLE_PHANTOM_GANON, DOORSHUTTER_STYLE_GOHMA_BLOCK
         this->dyna.actor.room = -1;
     }
-
-    if (this->requiredObjBankIndex = objectIndex = Object_GetIndex(&play->objectCtx, sStyleInfo[styleType].objectId),
-        (s8)objectIndex < 0) {
+    if (this->requiredObjectSlot = objectSlot = Object_GetSlot(&play->objectCtx, sStyleInfo[styleType].objectId),
+        (s8)objectSlot < 0) {
+        osSyncPrintf("KILL DOOR\n");
         Actor_Kill(&this->dyna.actor);
         return;
     }
@@ -468,8 +540,8 @@ void DoorShutter_Destroy(Actor* thisx, PlayState* play) {
 }
 
 void DoorShutter_WaitForObject(DoorShutter* this, PlayState* play) {
-    if (Object_IsLoaded(&play->objectCtx, this->requiredObjBankIndex)) {
-        this->dyna.actor.objBankIndex = this->requiredObjBankIndex;
+    if (Object_IsLoaded(&play->objectCtx, this->requiredObjectSlot)) {
+        this->dyna.actor.objectSlot = this->requiredObjectSlot;
         if (this->doorType == SHUTTER_PG_BARS || this->doorType == SHUTTER_GOHMA_BLOCK) {
             // Init dynapoly for shutters of the type that uses it
             CollisionHeader* colHeader = NULL;
@@ -820,7 +892,7 @@ void DoorShutter_SetupClosed(DoorShutter* this, PlayState* play) {
     if (DoorShutter_SetupDoor(this, play) && !(player->stateFlags1 & PLAYER_STATE1_11)) {
         // The door is barred behind the player
         DoorShutter_SetupAction(this, DoorShutter_WaitPlayerSurprised);
-        func_8002DF54(play, NULL, PLAYER_CSMODE_2);
+        func_8002DF54(play, NULL, PLAYER_CSACTION_2);
     }
 }
 
@@ -860,7 +932,7 @@ void DoorShutter_JabuDoorClose(DoorShutter* this, PlayState* play) {
 
 void DoorShutter_WaitPlayerSurprised(DoorShutter* this, PlayState* play) {
     if (this->actionTimer++ > 30) {
-        func_8002DF54(play, NULL, PLAYER_CSMODE_7);
+        func_8002DF54(play, NULL, PLAYER_CSACTION_7);
         DoorShutter_SetupDoor(this, play);
     }
 }
@@ -910,7 +982,64 @@ void DoorShutter_Update(Actor* thisx, PlayState* play) {
     Player* player = GET_PLAYER(play);
 
     if (!(player->stateFlags1 & (PLAYER_STATE1_6 | PLAYER_STATE1_7 | PLAYER_STATE1_10 | PLAYER_STATE1_28)) ||
-        (this->actionFunc == DoorShutter_WaitForObject)) {
+        (this->actionFunc == DoorShutter_WaitForObject) ||
+        (DOORSHUTTER_GET_TYPE(thisx) >= SHUTTER_RUPEE_0 && DOORSHUTTER_GET_TYPE(thisx) <= SHUTTER_RUPEE_20)) {
+        {
+            GfxPrint printer;
+            Gfx* gfx;
+
+            OPEN_DISPS(play->state.gfxCtx);
+
+            gfx = POLY_OPA_DISP + 1;
+            gSPDisplayList(OVERLAY_DISP++, gfx);
+
+            GfxPrint_Init(&printer);
+            GfxPrint_Open(&printer, gfx);
+
+            GfxPrint_SetColor(&printer, 255, 0, 255, 255);
+            GfxPrint_SetPos(&printer, 10, 10);
+
+            if (this->actionFunc == DoorShutter_WaitForObject)
+                GfxPrint_Printf(&printer, "%s", "DoorShutter_WaitForObject");
+            else if (this->actionFunc == DoorShutter_WaitForAsk)
+                GfxPrint_Printf(&printer, "%s", "DoorShutter_WaitForAsk");
+            else if (this->actionFunc == DoorShutter_Open)
+                GfxPrint_Printf(&printer, "%s", "DoorShutter_Open");
+            else if (this->actionFunc == DoorShutter_Unbar)
+                GfxPrint_Printf(&printer, "%s", "DoorShutter_Unbar");
+            else if (this->actionFunc == DoorShutter_AskForRuppe)
+                GfxPrint_Printf(&printer, "%s", "DoorShutter_AskForRuppe");
+            else if (this->actionFunc == DoorShutter_WaitClear)
+                GfxPrint_Printf(&printer, "%s", "DoorShutter_WaitClear");
+            else if (this->actionFunc == DoorShutter_BarAndWaitSwitchFlag)
+                GfxPrint_Printf(&printer, "%s", "DoorShutter_BarAndWaitSwitchFlag");
+            else if (this->actionFunc == DoorShutter_UnbarredCheckSwitchFlag)
+                GfxPrint_Printf(&printer, "%s", "DoorShutter_UnbarredCheckSwitchFlag");
+            else if (this->actionFunc == DoorShutter_Unopenable)
+                GfxPrint_Printf(&printer, "%s", "DoorShutter_Unopenable");
+            else if (this->actionFunc == DoorShutter_Idle)
+                GfxPrint_Printf(&printer, "%d", (1000000.0f * 1) / (OS_CYCLES_TO_USEC(1)));
+            else if (this->actionFunc == DoorShutter_Open)
+                GfxPrint_Printf(&printer, "%s", "DoorShutter_Open");
+            else if (this->actionFunc == DoorShutter_Close)
+                GfxPrint_Printf(&printer, "%s", "DoorShutter_Close");
+            else if (this->actionFunc == DoorShutter_WaitPlayerSurprised)
+                GfxPrint_Printf(&printer, "%s", "DoorShutter_WaitPlayerSurprised");
+            else {
+                GfxPrint_Printf(&printer, "%s", "UNKNOWN");
+                GfxPrint_SetPos(&printer, 20, 10);
+                GfxPrint_Printf(&printer, "%08X", this->actionFunc);
+            }
+
+            gfx = GfxPrint_Close(&printer);
+            GfxPrint_Destroy(&printer);
+
+            gSPEndDisplayList(gfx++);
+            gSPBranchList(POLY_OPA_DISP, gfx);
+            POLY_OPA_DISP = gfx;
+
+            CLOSE_DISPS(play->state.gfxCtx);
+        }
         this->actionFunc(this, play);
     }
 }
@@ -977,7 +1106,7 @@ void DoorShutter_Draw(Actor* thisx, PlayState* play) {
     DoorShutter* this = (DoorShutter*)thisx;
 
     //! @bug This actor is not fully initialized until the required object dependency is loaded.
-    //! In most cases, the check for objBankIndex to equal requiredObjBankIndex prevents the actor
+    //! In most cases, the check for objectSlot to equal requiredObjectSlot prevents the actor
     //! from drawing until initialization is complete. However if the required object is the same as the
     //! object dependency listed in init vars (gameplay_keep in this case), the check will pass even though
     //! initialization has not completed. When this happens, it will try to draw the display list of the
@@ -988,7 +1117,7 @@ void DoorShutter_Draw(Actor* thisx, PlayState* play) {
     //! The best way to fix this issue (and what was done in Majora's Mask) is to null out the draw function in
     //! the init vars for the actor, and only set draw after initialization is complete.
 
-    if (this->dyna.actor.objBankIndex == this->requiredObjBankIndex &&
+    if (this->dyna.actor.objectSlot == this->requiredObjectSlot &&
         (this->styleType == DOORSHUTTER_STYLE_PHANTOM_GANON || DoorShutter_ShouldDraw(this, play))) {
         s32 pad[2];
         DoorShutterGfxInfo* gfxInfo = &sGfxInfo[this->gfxType];

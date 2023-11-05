@@ -3,6 +3,7 @@
 
 #include "ultra64.h"
 #include "ultra64/gs2dex.h"
+#include "attributes.h"
 #include "z64save.h"
 #include "z64light.h"
 #include "z64bgcheck.h"
@@ -34,6 +35,7 @@
 #include "z64skybox.h"
 #include "z64sram.h"
 #include "z64view.h"
+#include "z64vis.h"
 #include "alignment.h"
 #include "seqcmd.h"
 #include "sequence.h"
@@ -48,6 +50,7 @@
 #include "sched.h"
 #include "rumble.h"
 #include "mempak.h"
+#include "sys_matrix.h"
 #include "tha.h"
 #include "thga.h"
 #include "speedmeter.h"
@@ -414,7 +417,7 @@ typedef struct PlayState {
     /* 0x11D44 */ s32 (*isPlayerDroppingFish)(struct PlayState* play);
     /* 0x11D48 */ s32 (*startPlayerFishing)(struct PlayState* play);
     /* 0x11D4C */ s32 (*grabPlayer)(struct PlayState* play, Player* player);
-    /* 0x11D50 */ s32 (*startPlayerCutscene)(struct PlayState* play, Actor* actor, s32 csMode);
+    /* 0x11D50 */ s32 (*startPlayerCutscene)(struct PlayState* play, Actor* actor, s32 csAction);
     /* 0x11D54 */ void (*func_11D54)(Player* player, struct PlayState* play);
     /* 0x11D58 */ s32 (*damagePlayer)(struct PlayState* play, s32 damage);
     /* 0x11D5C */ void (*talkWithPlayer)(struct PlayState* play, Actor* actor);
@@ -435,29 +438,30 @@ typedef struct PlayState {
     /* 0x11E04 */ s16* exitList;
     /* 0x11E08 */ Path* pathList;
     /* 0x11E0C */ QuestHintCmd* naviQuestHints;
-    /* 0x11E10 */ void* specialEffects;
-    /* 0x11E14 */ u8 skyboxId;
-    /* 0x11E15 */ s8 transitionTrigger; // "fade_direction"
-    /* 0x11E16 */ s16 unk_11E16;
-    /* 0x11E18 */ s16 bgCoverAlpha;
-    /* 0x11E1A */ s16 nextEntranceIndex;
-    /* 0x11E1C */ char unk_11E1C[0x40];
-    /* 0x11E5C */ s8 shootingGalleryStatus;
-    /* 0x11E5D */ s8 bombchuBowlingStatus; // "bombchu_game_flag"
-    /* 0x11E5E */ u8 transitionType;
-    /* 0x11E60 */ CollisionCheckContext colChkCtx;
-    /* 0x120FC */ u16 cutsceneFlags[20];
-    /* 0x12124 */ PreRender pauseBgPreRender;
-    /* 0x12174 */ char unk_12174[0x53];
-    /* 0x121C7 */ s8 unk_121C7;
-    /* 0x121C8 */ TransitionContext transitionCtx;
-    /* 0x12418 */ char unk_12418[0x3];
-    /* 0x1241B */ u8 transitionMode; // "fbdemo_wipe_modem"
-    /* 0x1241C */ TransitionFade transitionFadeFlash; // Transition fade instance which flashes screen, see R_TRANS_FADE_FLASH_ALPHA_STEP
-    /* 0x12428 */ char unk_12428[0x3];
-    /* 0x1242B */ u8 viewpoint; // toggleable camera setting by shops or player. Is also equal to the bgCamIndex + 1
-    /* 0x1242C */ SceneTableEntry* loadedScene;
-    /* 0x12430 */ char unk_12430[0xE8];
+    /* 0xXXXXX */ AnimatedMaterial* sceneMaterialAnims;
+    /* 0xXXXXX */ void* specialEffects;
+    /* 0xXXXXX */ u8 skyboxId;
+    /* 0xXXXXX */ s8 transitionTrigger; // "fade_direction"
+    /* 0xXXXXX */ s16 unk_11E16;
+    /* 0xXXXXX */ s16 bgCoverAlpha;
+    /* 0xXXXXX */ s16 nextEntranceIndex;
+    /* 0xXXXXX */ char unk_11E1C[0x40];
+    /* 0xXXXXX */ s8 shootingGalleryStatus;
+    /* 0xXXXXX */ s8 bombchuBowlingStatus; // "bombchu_game_flag"
+    /* 0xXXXXX */ u8 transitionType;
+    /* 0xXXXXX */ CollisionCheckContext colChkCtx;
+    /* 0xXXXXX */ u16 cutsceneFlags[20];
+    /* 0xXXXXX */ PreRender pauseBgPreRender;
+    /* 0xXXXXX */ char unk_12174[0x53];
+    /* 0xXXXXX */ s8 unk_121C7;
+    /* 0xXXXXX */ TransitionContext transitionCtx;
+    /* 0xXXXXX */ char unk_12418[0x3];
+    /* 0xXXXXX */ u8 transitionMode; // "fbdemo_wipe_modem"
+    /* 0xXXXXX */ TransitionFade transitionFadeFlash; // Transition fade instance which flashes screen, see R_TRANS_FADE_FLASH_ALPHA_STEP
+    /* 0xXXXXX */ char unk_12428[0x3];
+    /* 0xXXXXX */ u8 viewpoint; // toggleable camera setting by shops or player. Is also equal to the bgCamIndex + 1
+    /* 0xXXXXX */ SceneTableEntry* loadedScene;
+    /* 0xXXXXX */ char unk_12430[0xE8];
 } PlayState; // size = 0x12518
 
 typedef struct {
@@ -656,11 +660,6 @@ typedef struct DebugDispObject {
     /* 0x28 */ struct DebugDispObject* next;
 } DebugDispObject; // size = 0x2C
 
-typedef enum {
-    /* 0 */ MTXMODE_NEW,  // generates a new matrix
-    /* 1 */ MTXMODE_APPLY // applies transformation to the current matrix
-} MatrixMode;
-
 typedef struct StackEntry {
     /* 0x00 */ struct StackEntry* next;
     /* 0x04 */ struct StackEntry* prev;
@@ -807,30 +806,5 @@ typedef struct {
     /* 0x80 */ u32 viFeatures;
     /* 0x84 */ u32 unk_84;
 } ViMode; // size = 0x88
-
-// Vis...
-typedef struct {
-    /* 0x00 */ u32 type;
-    /* 0x04 */ u32 setScissor;
-    /* 0x08 */ Color_RGBA8_u32 color;
-    /* 0x0C */ Color_RGBA8_u32 envColor;
-} struct_801664F0; // size = 0x10
-
-typedef struct {
-    /* 0x00 */ u32 unk_00;
-    /* 0x04 */ u32 setScissor;
-    /* 0x08 */ Color_RGBA8_u32 primColor;
-    /* 0x0C */ Color_RGBA8_u32 envColor;
-    /* 0x10 */ u16* tlut;
-    /* 0x14 */ Gfx* dList;
-} VisMono; // size = 0x18
-
-// Vis...
-typedef struct {
-    /* 0x00 */ u32 useRgba;
-    /* 0x04 */ u32 setScissor;
-    /* 0x08 */ Color_RGBA8_u32 primColor;
-    /* 0x08 */ Color_RGBA8_u32 envColor;
-} struct_80166500; // size = 0x10
 
 #endif

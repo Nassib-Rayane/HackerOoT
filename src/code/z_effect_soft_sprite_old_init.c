@@ -49,7 +49,7 @@ void EffectSs_DrawGEffect(PlayState* play, EffectSs* this, void* texture) {
     MtxF mfTransBillboard;
     s32 pad1;
     Mtx* mtx;
-    void* object = play->objectCtx.status[this->rgObjBankIdx].segment;
+    void* objectPtr = play->objectCtx.slots[this->rgObjectSlot].segment;
 
     OPEN_DISPS(gfxCtx);
 
@@ -58,8 +58,8 @@ void EffectSs_DrawGEffect(PlayState* play, EffectSs* this, void* texture) {
     SkinMatrix_SetScale(&mfScale, scale, scale, scale);
     SkinMatrix_MtxFMtxFMult(&mfTrans, &play->billboardMtxF, &mfTransBillboard);
     SkinMatrix_MtxFMtxFMult(&mfTransBillboard, &mfScale, &mfResult);
-    gSegments[6] = VIRTUAL_TO_PHYSICAL(object);
-    gSPSegment(POLY_XLU_DISP++, 0x06, object);
+    gSegments[6] = VIRTUAL_TO_PHYSICAL(objectPtr);
+    gSPSegment(POLY_XLU_DISP++, 0x06, objectPtr);
 
     mtx = SkinMatrix_MtxFToNewMtx(gfxCtx, &mfResult);
 
@@ -1093,8 +1093,29 @@ void EffectSsDeadDb_Spawn(PlayState* play, Vec3f* pos, Vec3f* velocity, Vec3f* a
     initParams.envColor.g = envG;
     initParams.envColor.b = envB;
     initParams.unused = unused;
-    initParams.unk_34 = arg14;
+    initParams.life = arg14;
     initParams.playSfx = playSfx;
+
+    EffectSs_Spawn(play, EFFECT_SS_DEAD_DB, 120, &initParams);
+}
+
+void EffectSsDeadDb_SpawnMM(PlayState* play, Vec3f* pos, Vec3f* velocity, Vec3f* accel, Color_RGBA8* prim,
+                          Color_RGBA8* env, s16 scale, s16 scaleStep, s32 life) {
+    EffectSsDeadDbInitParams initParams;
+
+    Math_Vec3f_Copy(&initParams.pos, pos);
+    Math_Vec3f_Copy(&initParams.velocity, velocity);
+    Math_Vec3f_Copy(&initParams.accel, accel);
+    initParams.scale = scale;
+    initParams.scaleStep = scaleStep;
+    initParams.primColor.r = prim->r;
+    initParams.primColor.g = prim->g;
+    initParams.primColor.b = prim->b;
+    initParams.primColor.a = prim->a;
+    initParams.envColor.r = env->r;
+    initParams.envColor.g = env->g;
+    initParams.envColor.b = env->b;
+    initParams.life = life;
 
     EffectSs_Spawn(play, EFFECT_SS_DEAD_DB, 120, &initParams);
 }

@@ -10,7 +10,7 @@ Input* D_8012D1F8 = NULL;
 
 TransitionTile sTransitionTile;
 s32 gTransitionTileState;
-VisMono D_80161498;
+VisMono sPlayVisMono;
 Color_RGBA8_u32 gVisMonoColor;
 FaultClient D_801614B8;
 s16 sTransitionFillTimer;
@@ -201,7 +201,7 @@ void Play_Destroy(GameState* thisx) {
 
     Letterbox_Destroy();
     TransitionFade_Destroy(&this->transitionFadeFlash);
-    VisMono_Destroy(&D_80161498);
+    VisMono_Destroy(&sPlayVisMono);
 
     if (gSaveContext.save.linkAge != this->linkAgeOnLoad) {
         Inventory_SwapAgeEquipment();
@@ -234,6 +234,9 @@ void Play_Init(GameState* thisx) {
         SET_NEXT_GAMESTATE(&this->state, TitleSetup_Init, TitleSetupState);
         return;
     }
+
+    R_MOTION_BLUR_ENABLED = 0;
+    R_MOTION_BLUR_ALPHA = 0x80;
 
     SystemArena_Display();
     GameState_Realloc(&this->state, 0x1D4790);
@@ -396,7 +399,7 @@ void Play_Init(GameState* thisx) {
     TransitionFade_SetType(&this->transitionFadeFlash, TRANS_INSTANCE_TYPE_FADE_FLASH);
     TransitionFade_SetColor(&this->transitionFadeFlash, RGBA8(160, 160, 160, 255));
     TransitionFade_Start(&this->transitionFadeFlash);
-    VisMono_Init(&D_80161498);
+    VisMono_Init(&sPlayVisMono);
     gVisMonoColor.a = 0;
     CutsceneFlags_UnsetAll(this);
 
@@ -453,7 +456,7 @@ void Play_Init(GameState* thisx) {
 
 void Play_Update(PlayState* this) {
     s32 pad1;
-    s32 sp80;
+    s32 isPaused;
     Input* input;
     u32 i;
     s32 pad2;
@@ -488,8 +491,8 @@ void Play_Update(PlayState* this) {
         ActorOverlayTable_LogPrint();
     }
 
-    gSegments[4] = VIRTUAL_TO_PHYSICAL(this->objectCtx.status[this->objectCtx.mainKeepIndex].segment);
-    gSegments[5] = VIRTUAL_TO_PHYSICAL(this->objectCtx.status[this->objectCtx.subKeepIndex].segment);
+    gSegments[4] = VIRTUAL_TO_PHYSICAL(this->objectCtx.slots[this->objectCtx.mainKeepSlot].segment);
+    gSegments[5] = VIRTUAL_TO_PHYSICAL(this->objectCtx.slots[this->objectCtx.subKeepSlot].segment);
     gSegments[2] = VIRTUAL_TO_PHYSICAL(this->sceneSegment);
 
 #ifdef ENABLE_FRAMERATE_OPTIONS
@@ -857,21 +860,17 @@ void Play_Update(PlayState* this) {
             }
 
             PLAY_LOG(3551);
-#if (defined ENABLE_INV_EDITOR || defined ENABLE_EVENT_EDITOR)
-            sp80 = (this->pauseCtx.state != 0) || (this->pauseCtx.debugState != 0);
-#else
-        sp80 = (this->pauseCtx.state != 0);
-#endif
+            isPaused = IS_PAUSED(&this->pauseCtx);
 
             PLAY_LOG(3555);
             AnimationContext_Reset(&this->animationCtx);
 
             PLAY_LOG(3561);
-            Object_UpdateBank(&this->objectCtx);
+            Object_UpdateEntries(&this->objectCtx);
 
             PLAY_LOG(3577);
 
-            if ((sp80 == 0) && (IREG(72) == 0)) {
+            if (!isPaused && (IREG(72) == 0)) {
                 PLAY_LOG(3580);
 
                 this->gameplayFrames++;
@@ -938,11 +937,7 @@ void Play_Update(PlayState* this) {
 
             if (this->viewpoint != VIEWPOINT_NONE) {
                 if (CHECK_BTN_ALL(input[0].press.button, BTN_CUP)) {
-#if (defined ENABLE_INV_EDITOR || defined ENABLE_EVENT_EDITOR)
-                    if ((this->pauseCtx.state != 0) || (this->pauseCtx.debugState != 0)) {
-#else
-                if (this->pauseCtx.state != 0) {
-#endif
+                    if (IS_PAUSED(&this->pauseCtx)) {
                         // "Changing viewpoint is prohibited due to the kaleidoscope"
                         osSyncPrintf(VT_FGCOL(CYAN) "カレイドスコープ中につき視点変更を禁止しております\n" VT_RST);
                     } else if (Player_InCsMode(this)) {
@@ -966,11 +961,7 @@ void Play_Update(PlayState* this) {
 
             PLAY_LOG(3716);
 
-#if (defined ENABLE_INV_EDITOR || defined ENABLE_EVENT_EDITOR)
-            if ((this->pauseCtx.state != 0) || (this->pauseCtx.debugState != 0)) {
-#else
-        if (this->pauseCtx.state != 0) {
-#endif
+            if (IS_PAUSED(&this->pauseCtx)) {
                 PLAY_LOG(3721);
                 KaleidoScopeCall_Update(this);
             } else if (this->gameOverCtx.state != GAMEOVER_INACTIVE) {
@@ -1009,10 +1000,29 @@ void Play_Update(PlayState* this) {
 skip:
     PLAY_LOG(3801);
 
+    {   // motion blur testing controls
+        if (CHECK_BTN_ALL(this->state.input[0].press.button, BTN_L)) {
+            R_MOTION_BLUR_ENABLED ^= 1;
+        }
+        if (R_MOTION_BLUR_ENABLED != 0) {
+            if (CHECK_BTN_ALL(this->state.input[0].cur.button, BTN_DRIGHT)) {
+                R_MOTION_BLUR_ALPHA++;
+                if (R_MOTION_BLUR_ALPHA > 255) {
+                    R_MOTION_BLUR_ALPHA = 255;
+                }
+            } else if (CHECK_BTN_ALL(this->state.input[0].cur.button, BTN_DLEFT)) {
+                R_MOTION_BLUR_ALPHA--;
+                if (R_MOTION_BLUR_ALPHA < 0) {
+                    R_MOTION_BLUR_ALPHA = 0;
+                }
+            }
+        }
+    }
+
 #ifdef ENABLE_CAMERA_DEBUGGER
-    if ((sp80 == 0) || gDebugCamEnabled) {
+    if (!isPaused || gDebugCamEnabled) {
 #else
-    if (sp80 == 0) {
+    if (!isPaused) {
 #endif
         s32 pad3[5];
         s32 i;
@@ -1039,11 +1049,7 @@ skip:
 }
 
 void Play_DrawOverlayElements(PlayState* this) {
-#if (defined ENABLE_INV_EDITOR || defined ENABLE_EVENT_EDITOR)
-    if ((this->pauseCtx.state != 0) || (this->pauseCtx.debugState != 0)) {
-#else
-    if (this->pauseCtx.state != 0) {
-#endif
+    if (IS_PAUSED(&this->pauseCtx)) {
         KaleidoScopeCall_Draw(this);
     }
 
@@ -1058,6 +1064,46 @@ void Play_DrawOverlayElements(PlayState* this) {
     }
 }
 
+
+void PreRender_MotionBlurOpaque(PreRender* this, Gfx** gfxP);
+void PreRender_MotionBlur(PreRender* this, Gfx** gfxp, s32 alpha);
+extern u16 (*gWorkBuf)[SCREEN_WIDTH * SCREEN_HEIGHT];
+
+
+void Gameplay_DrawMotionBlur(PlayState* play) {
+
+    static u8 sFirstDraw = true;
+
+    if (R_MOTION_BLUR_ENABLED == 0) { // disabled
+        sFirstDraw = true;
+    } else {
+        Gfx* gfxRef;
+        Gfx* gfx;
+
+        OPEN_DISPS(play->state.gfxCtx);
+
+        gfxRef = POLY_OPA_DISP;
+        gfx = Graph_GfxPlusOne(gfxRef);
+        gSPDisplayList(OVERLAY_DISP++, gfx);
+
+        play->pauseBgPreRender.fbuf = play->state.gfxCtx->curFrameBuffer;
+        play->pauseBgPreRender.fbufSave = (u16*)gWorkBuf;
+
+        if (sFirstDraw) {
+            sFirstDraw = false;
+        } else {
+            PreRender_MotionBlur(&play->pauseBgPreRender, &gfx, R_MOTION_BLUR_ALPHA);
+        }
+        PreRender_MotionBlurOpaque(&play->pauseBgPreRender, &gfx);
+
+        gSPEndDisplayList(gfx++);
+        Graph_BranchDlist(gfxRef, gfx);
+        POLY_OPA_DISP = gfx;
+
+        CLOSE_DISPS(play->state.gfxCtx);
+    }
+}
+
 void Play_Draw(PlayState* this) {
     GraphicsContext* gfxCtx = this->state.gfxCtx;
     Lights* sp228;
@@ -1065,21 +1111,21 @@ void Play_Draw(PlayState* this) {
 
     OPEN_DISPS(gfxCtx);
 
-    gSegments[4] = VIRTUAL_TO_PHYSICAL(this->objectCtx.status[this->objectCtx.mainKeepIndex].segment);
-    gSegments[5] = VIRTUAL_TO_PHYSICAL(this->objectCtx.status[this->objectCtx.subKeepIndex].segment);
+    gSegments[4] = VIRTUAL_TO_PHYSICAL(this->objectCtx.slots[this->objectCtx.mainKeepSlot].segment);
+    gSegments[5] = VIRTUAL_TO_PHYSICAL(this->objectCtx.slots[this->objectCtx.subKeepSlot].segment);
     gSegments[2] = VIRTUAL_TO_PHYSICAL(this->sceneSegment);
 
     gSPSegment(POLY_OPA_DISP++, 0x00, NULL);
     gSPSegment(POLY_XLU_DISP++, 0x00, NULL);
     gSPSegment(OVERLAY_DISP++, 0x00, NULL);
 
-    gSPSegment(POLY_OPA_DISP++, 0x04, this->objectCtx.status[this->objectCtx.mainKeepIndex].segment);
-    gSPSegment(POLY_XLU_DISP++, 0x04, this->objectCtx.status[this->objectCtx.mainKeepIndex].segment);
-    gSPSegment(OVERLAY_DISP++, 0x04, this->objectCtx.status[this->objectCtx.mainKeepIndex].segment);
+    gSPSegment(POLY_OPA_DISP++, 0x04, this->objectCtx.slots[this->objectCtx.mainKeepSlot].segment);
+    gSPSegment(POLY_XLU_DISP++, 0x04, this->objectCtx.slots[this->objectCtx.mainKeepSlot].segment);
+    gSPSegment(OVERLAY_DISP++, 0x04, this->objectCtx.slots[this->objectCtx.mainKeepSlot].segment);
 
-    gSPSegment(POLY_OPA_DISP++, 0x05, this->objectCtx.status[this->objectCtx.subKeepIndex].segment);
-    gSPSegment(POLY_XLU_DISP++, 0x05, this->objectCtx.status[this->objectCtx.subKeepIndex].segment);
-    gSPSegment(OVERLAY_DISP++, 0x05, this->objectCtx.status[this->objectCtx.subKeepIndex].segment);
+    gSPSegment(POLY_OPA_DISP++, 0x05, this->objectCtx.slots[this->objectCtx.subKeepSlot].segment);
+    gSPSegment(POLY_XLU_DISP++, 0x05, this->objectCtx.slots[this->objectCtx.subKeepSlot].segment);
+    gSPSegment(OVERLAY_DISP++, 0x05, this->objectCtx.slots[this->objectCtx.subKeepSlot].segment);
 
     gSPSegment(POLY_OPA_DISP++, 0x02, this->sceneSegment);
     gSPSegment(POLY_XLU_DISP++, 0x02, this->sceneSegment);
@@ -1097,18 +1143,23 @@ void Play_Draw(PlayState* this) {
         // The billboard matrix temporarily stores the viewing matrix
         Matrix_MtxToMtxF(&this->view.viewing, &this->billboardMtxF);
         Matrix_MtxToMtxF(&this->view.projection, &this->viewProjectionMtxF);
-        Matrix_Mult(&this->viewProjectionMtxF, MTXMODE_NEW);
-        // The billboard is still a viewing matrix at this stage
-        Matrix_Mult(&this->billboardMtxF, MTXMODE_APPLY);
-        Matrix_Get(&this->viewProjectionMtxF);
-        this->billboardMtxF.mf[0][3] = this->billboardMtxF.mf[1][3] = this->billboardMtxF.mf[2][3] =
-            this->billboardMtxF.mf[3][0] = this->billboardMtxF.mf[3][1] = this->billboardMtxF.mf[3][2] = 0.0f;
-        // This transpose is where the viewing matrix is properly converted into a billboard matrix
+
+        SkinMatrix_MtxFMtxFMult(&this->viewProjectionMtxF, &this->billboardMtxF, &this->viewProjectionMtxF);
+
+        this->billboardMtxF.mf[3][2] = this->billboardMtxF.mf[3][1] = this->billboardMtxF.mf[3][0] =
+            this->billboardMtxF.mf[2][3] = this->billboardMtxF.mf[1][3] = this->billboardMtxF.mf[0][3] = 0.0f;
+
         Matrix_Transpose(&this->billboardMtxF);
-        this->billboardMtx = Matrix_MtxFToMtx(Matrix_CheckFloats(&this->billboardMtxF, "../z_play.c", 4005),
-                                              Graph_Alloc(gfxCtx, sizeof(Mtx)));
+
+        this->billboardMtx = GRAPH_ALLOC(this->state.gfxCtx, 2 * sizeof(Mtx));
+
+        Matrix_MtxFToMtx(&this->billboardMtxF, this->billboardMtx);
+        Matrix_RotateY(BINANG_TO_RAD((s16)(Camera_GetCamDirYaw(GET_ACTIVE_CAM(this)) + 0x8000)), MTXMODE_NEW);
+        Matrix_ToMtx(this->billboardMtx + 1, __FILE__, __LINE__);
 
         gSPSegment(POLY_OPA_DISP++, 0x01, this->billboardMtx);
+        gSPSegment(POLY_XLU_DISP++, 0x01, this->billboardMtx);
+        gSPSegment(OVERLAY_DISP++, 0x01, this->billboardMtx);
 
         if ((R_HREG_MODE != HREG_MODE_PLAY) || R_PLAY_DRAW_COVER_ELEMENTS) {
             Gfx* gfxP;
@@ -1133,8 +1184,8 @@ void Play_Draw(PlayState* this) {
             TransitionFade_Draw(&this->transitionFadeFlash, &gfxP);
 
             if (gVisMonoColor.a > 0) {
-                D_80161498.primColor.rgba = gVisMonoColor.rgba;
-                VisMono_Draw(&D_80161498, &gfxP);
+                sPlayVisMono.vis.primColor.rgba = gVisMonoColor.rgba;
+                VisMono_Draw(&sPlayVisMono, &gfxP);
             }
 
             gSPEndDisplayList(gfxP++);
@@ -1286,7 +1337,7 @@ void Play_Draw(PlayState* this) {
             DebugDisplay_DrawObjects(this);
         }
 #endif
-
+                Gameplay_DrawMotionBlur(this);
         if ((R_PAUSE_BG_PRERENDER_STATE == PAUSE_BG_PRERENDER_SETUP) || (gTransitionTileState == TRANS_TILE_SETUP)) {
             Gfx* gfxP = OVERLAY_DISP;
 
@@ -1467,10 +1518,11 @@ void Play_InitScene(PlayState* this, s32 spawn) {
     this->exitList = NULL;
     this->naviQuestHints = NULL;
     this->pathList = NULL;
+    this->sceneMaterialAnims = NULL;
 
     this->numActorEntries = 0;
 
-    Object_InitBank(this, &this->objectCtx);
+    Object_InitContext(this, &this->objectCtx);
     LightContext_Init(this, &this->lightCtx);
     TransitionActor_InitContext(&this->state, &this->transiActorCtx);
     func_80096FD4(this, &this->roomCtx.curRoom);

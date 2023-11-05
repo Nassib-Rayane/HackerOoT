@@ -33,13 +33,13 @@ void Locale_ResetRegion(void);
 u32 func_80001F48(void);
 u32 func_80001F8C(void);
 u32 Locale_IsRegionNative(void);
-void __assert(const char* exp, const char* file, s32 line);
+NORETURN void __assert(const char* exp, const char* file, s32 line);
 void isPrintfInit(void);
 void osSyncPrintfUnused(const char* fmt, ...);
 void osSyncPrintf(const char* fmt, ...);
 void rmonPrintf(const char* fmt, ...);
 void* is_proutSyncPrintf(void* arg, const char* str, u32 count);
-void func_80002384(const char* exp, const char* file, u32 line);
+NORETURN void func_80002384(const char* exp, const char* file, u32 line);
 OSPiHandle* osDriveRomInit(void);
 void Mio0_Decompress(Yaz0Header* hdr, u8* dst);
 void StackCheck_Init(StackEntry* entry, void* stackBottom, void* stackTop, u32 initValue, s32 minSpace,
@@ -310,6 +310,8 @@ void EffectSsFCircle_Spawn(PlayState* play, Actor* actor, Vec3f* pos, s16 radius
 void EffectSsDeadDb_Spawn(PlayState* play, Vec3f* pos, Vec3f* velocity, Vec3f* accel, s16 scale, s16 scaleStep,
                           s16 primR, s16 primG, s16 primB, s16 primA, s16 envR, s16 envG, s16 envB, s16 unused,
                           s32 arg14, s16 playSfx);
+void EffectSsDeadDb_SpawnMM(PlayState* play, Vec3f* pos, Vec3f* velocity, Vec3f* accel, Color_RGBA8* prim,
+                          Color_RGBA8* env, s16 scale, s16 scaleStep, s32 life);
 void EffectSsDeadDd_Spawn(PlayState* play, Vec3f* pos, Vec3f* velocity, Vec3f* accel, s16 scale, s16 scaleStep,
                           s16 primR, s16 primG, s16 primB, s16 alpha, s16 envR, s16 envG, s16 envB, s16 alphaStep,
                           s32 life);
@@ -392,8 +394,8 @@ void func_8002DE74(PlayState* play, Player* player);
 void Actor_MountHorse(PlayState* play, Player* player, Actor* horse);
 s32 func_8002DEEC(Player* player);
 void func_8002DF18(PlayState* play, Player* player);
-s32 func_8002DF38(PlayState* play, Actor* actor, u8 csMode);
-s32 func_8002DF54(PlayState* play, Actor* actor, u8 csMode);
+s32 func_8002DF38(PlayState* play, Actor* actor, u8 csAction);
+s32 func_8002DF54(PlayState* play, Actor* actor, u8 csAction);
 void func_8002DF90(DynaPolyActor* dynaActor);
 void func_8002DFA4(DynaPolyActor* dynaActor, f32 arg1, s16 arg2);
 s32 Player_IsFacingActor(Actor* actor, s16 maxAngle, PlayState* play);
@@ -465,7 +467,7 @@ void Enemy_StartFinishingBlow(PlayState* play, Actor* actor);
 s16 func_80032CB4(s16* arg0, s16 arg1, s16 arg2, s16 arg3);
 void BodyBreak_Alloc(BodyBreak* bodyBreak, s32 count, PlayState* play);
 void BodyBreak_SetInfo(BodyBreak* bodyBreak, s32 limbIndex, s32 minLimbIndex, s32 maxLimbIndex, u32 count, Gfx** dList,
-                       s16 objectId);
+                       s16 objectSlot);
 s32 BodyBreak_SpawnParts(Actor* actor, BodyBreak* bodyBreak, PlayState* play, s16 type);
 void Actor_SpawnFloorDustRing(PlayState* play, Actor* actor, Vec3f* posXZ, f32 radius, s32 amountMinusOne,
                               f32 randAccelWeight, s16 scale, s16 scaleStep, u8 useLighting);
@@ -517,6 +519,7 @@ void func_80035844(Vec3f* arg0, Vec3f* arg1, Vec3s* arg2, s32 arg3);
 Actor* func_800358DC(Actor* actor, Vec3f* spawnPos, Vec3s* spawnRot, f32* arg3, s32 timer, s16* unused,
                      PlayState* play, s16 params, Gfx* dList);
 void func_800359B8(Actor* actor, s16 arg1, Vec3s* arg2);
+void func_800BE568(Actor* actor, ColliderSphere* collider);
 s32 Flags_GetEventChkInf(s32 flag);
 void Flags_SetEventChkInf(s32 flag);
 s32 Flags_GetInfTable(s32 flag);
@@ -636,6 +639,7 @@ void BgCheck_DrawStaticCollision(PlayState*, CollisionContext*);
 void func_80043334(CollisionContext* colCtx, Actor* actor, s32 bgId);
 s32 DynaPolyActor_TransformCarriedActor(CollisionContext* colCtx, s32 bgId, Actor* carriedActor);
 void DynaPolyActor_Init(DynaPolyActor* dynaActor, s32 transformFlags);
+void DynaPolyActor_LoadMesh(PlayState* play, DynaPolyActor* dynaActor, CollisionHeader* meshHeader);
 void DynaPolyActor_UnsetAllInteractFlags(DynaPolyActor* dynaActor);
 void DynaPolyActor_SetActorOnTop(DynaPolyActor* dynaActor);
 void DynaPoly_SetPlayerOnTop(CollisionContext* colCtx, s32 floorBgId);
@@ -717,6 +721,13 @@ s32 Collider_SetQuad(PlayState* play, ColliderQuad* collider, Actor* actor, Coll
 s32 Collider_ResetQuadAT(PlayState* play, Collider* collider);
 s32 Collider_ResetQuadAC(PlayState* play, Collider* collider);
 s32 Collider_ResetQuadOC(PlayState* play, Collider* collider);
+s32 Collider_InitSphere(struct PlayState* play, ColliderSphere* collider);
+s32 Collider_DestroySphere(struct PlayState* play, ColliderSphere* collider);
+s32 Collider_SetSphere(struct PlayState* play, ColliderSphere* collider, struct Actor* actor, ColliderSphereInit* src);
+s32 Collider_InitAndSetSphere(struct PlayState* play, ColliderSphere* collider, struct Actor* actor, ColliderSphereInit* src);
+s32 Collider_ResetSphereAT(struct PlayState* play, Collider* collider);
+s32 Collider_ResetSphereAC(struct PlayState* play, Collider* collider);
+s32 Collider_ResetSphereOC(struct PlayState* play, Collider* collider);
 s32 Collider_InitLine(PlayState* play, OcLine* line);
 s32 Collider_DestroyLine(PlayState* play, OcLine* line);
 s32 Collider_SetLinePoints(PlayState* play, OcLine* ocLine, Vec3f* a, Vec3f* b);
@@ -871,10 +882,11 @@ s32 Math_StepUntilS(s16* pValue, s16 limit, s16 step);
 s32 Math_StepToAngleS(s16* pValue, s16 target, s16 step);
 s32 Math_StepUntilF(f32* pValue, f32 limit, f32 step);
 s32 Math_AsymStepToF(f32* pValue, f32 target, f32 incrStep, f32 decrStep);
-void func_80077D10(f32* arg0, s16* arg1, Input* input);
+void Lib_GetControlStickData(f32* outMagnitude, s16* outAngle, Input* input);
 s16 Rand_S16Offset(s16 base, s16 range);
 void Math_Vec3f_Copy(Vec3f* dest, Vec3f* src);
 void Math_Vec3s_ToVec3f(Vec3f* dest, Vec3s* src);
+void Math_Vec3f_ToVec3s(Vec3s* dest, Vec3f* src);
 void Math_Vec3f_Sum(Vec3f* a, Vec3f* b, Vec3f* dest);
 void Math_Vec3f_Diff(Vec3f* a, Vec3f* b, Vec3f* dest);
 void Math_Vec3s_DiffToVec3f(Vec3f* dest, Vec3s* a, Vec3s* b);
@@ -895,6 +907,10 @@ void Color_RGBA8_Copy(Color_RGBA8* dst, Color_RGBA8* src);
 void Sfx_PlaySfxCentered(u16 sfxId);
 void Sfx_PlaySfxCentered2(u16 sfxId);
 void Sfx_PlaySfxAtPos(Vec3f* projectedPos, u16 sfxId);
+void* Lib_SegmentedToVirtual(void* ptr);
+void* Lib_SegmentedToVirtualNull(void* ptr);
+void* Lib_VirtualToPhysical(void* ptr);
+void* Lib_PhysicalToVirtual(void* ptr);
 void Health_InitMeter(PlayState* play);
 void Health_UpdateMeter(PlayState* play);
 void Health_DrawMeter(PlayState* play);
@@ -1058,7 +1074,7 @@ s32 Player_OverrideLimbDrawGameplayCrawling(PlayState* play, s32 limbIndex, Gfx*
 u8 func_80090480(PlayState* play, ColliderQuad* collider, WeaponInfo* weaponInfo, Vec3f* newTip, Vec3f* newBase);
 void Player_DrawGetItem(PlayState* play, Player* this);
 void Player_PostLimbDrawGameplay(PlayState* play, s32 limbIndex, Gfx** dList, Vec3s* rot, void* thisx);
-u32 func_80091738(PlayState* play, u8* segment, SkelAnime* skelAnime);
+u32 Player_InitPauseDrawData(PlayState* play, u8* segment, SkelAnime* skelAnime);
 void Player_DrawPause(PlayState* play, u8* segment, SkelAnime* skelAnime, Vec3f* pos, Vec3s* rot, f32 scale,
                       s32 sword, s32 tunic, s32 shield, s32 boots);
 void PreNMI_Init(GameState* thisx);
@@ -1088,7 +1104,7 @@ void Gfx_SetupDL_37Opa(GraphicsContext* gfxCtx);
 Gfx* Gfx_SetupDL_39(Gfx* gfx);
 void Gfx_SetupDL_39Opa(GraphicsContext* gfxCtx);
 void Gfx_SetupDL_39Overlay(GraphicsContext* gfxCtx);
-void Gfx_SetupDL_39Ptr(Gfx** gfxp);
+void Gfx_SetupDL_39Ptr(Gfx** gfxP);
 void Gfx_SetupDL_40Opa(GraphicsContext* gfxCtx);
 void Gfx_SetupDL_41Opa(GraphicsContext* gfxCtx);
 void Gfx_SetupDL_47Xlu(GraphicsContext* gfxCtx);
@@ -1100,8 +1116,8 @@ void Gfx_SetupDL_42Overlay(GraphicsContext* gfxCtx);
 void Gfx_SetupDL_27Xlu(GraphicsContext* gfxCtx);
 void Gfx_SetupDL_60NoCDXlu(GraphicsContext* gfxCtx);
 void Gfx_SetupDL_61Xlu(GraphicsContext* gfxCtx);
-void Gfx_SetupDL_56Ptr(Gfx** gfxp);
-Gfx* Gfx_BranchTexScroll(Gfx** gfxp, u32 x, u32 y, s32 width, s32 height);
+void Gfx_SetupDL_56Ptr(Gfx** gfxP);
+Gfx* Gfx_BranchTexScroll(Gfx** gfxP, u32 x, u32 y, s32 width, s32 height);
 Gfx* func_80094E78(GraphicsContext* gfxCtx, u32 x, u32 y);
 Gfx* Gfx_TexScroll(GraphicsContext* gfxCtx, u32 x, u32 y, s32 width, s32 height);
 Gfx* Gfx_TwoTexScroll(GraphicsContext* gfxCtx, s32 tile1, u32 x1, u32 y1, s32 width1, s32 height1, s32 tile2, u32 x2,
@@ -1125,11 +1141,10 @@ void Sample_Init(GameState* thisx);
 void Inventory_ChangeEquipment(s16 equipment, u16 value);
 u8 Inventory_DeleteEquipment(PlayState* play, s16 equipment);
 void Inventory_ChangeUpgrade(s16 upgrade, s16 value);
-s32 Object_Spawn(ObjectContext* objectCtx, s16 objectId);
-void Object_InitBank(PlayState* play, ObjectContext* objectCtx);
-void Object_UpdateBank(ObjectContext* objectCtx);
-s32 Object_GetIndex(ObjectContext* objectCtx, s16 objectId);
-s32 Object_IsLoaded(ObjectContext* objectCtx, s32 bankIndex);
+void Object_InitContext(PlayState* play, ObjectContext* objectCtx);
+void Object_UpdateEntries(ObjectContext* objectCtx);
+s32 Object_GetSlot(ObjectContext* objectCtx, s16 objectId);
+s32 Object_IsLoaded(ObjectContext* objectCtx, s32 slot);
 void func_800981B8(ObjectContext* objectCtx);
 s32 Scene_ExecuteCommands(PlayState* play, SceneCmd* sceneCmd);
 void TransitionActor_InitContext(GameState* state, TransitionActorContext* transiActorCtx);
@@ -1206,7 +1221,7 @@ void View_Apply(View* view, s32 mask);
 s32 View_ApplyOrthoToOverlay(View* view);
 s32 View_ApplyPerspectiveToOverlay(View* view);
 s32 View_UpdateViewingMatrix(View* view);
-s32 View_ApplyTo(View* view, s32 mask, Gfx** gfxp);
+s32 View_ApplyTo(View* view, s32 mask, Gfx** gfxP);
 s32 View_ErrorCheckEyePosition(f32 eyeX, f32 eyeY, f32 eyeZ);
 void ViMode_LogPrint(OSViMode* osViMode);
 void ViMode_Configure(ViMode* viMode, s32 type, s32 tvType, s32 loRes, s32 antialiasOff, s32 modeN, s32 fb16Bit,
@@ -1217,15 +1232,6 @@ void ViMode_Init(ViMode* viMode);
 void ViMode_Destroy(ViMode* viMode);
 void ViMode_ConfigureFeatures(ViMode* viMode, s32 viFeatures);
 void ViMode_Update(ViMode* viMode, Input* input);
-void func_800ACE70(struct_801664F0* this);
-void func_800ACE90(struct_801664F0* this);
-void func_800ACE98(struct_801664F0* this, Gfx** gfxp);
-void VisMono_Init(VisMono* this);
-void VisMono_Destroy(VisMono* this);
-void VisMono_Draw(VisMono* this, Gfx** gfxp);
-void func_800AD920(struct_80166500* this);
-void func_800AD950(struct_80166500* this);
-void func_800AD958(struct_80166500* this, Gfx** gfxp);
 void PlayerCall_InitFuncPtrs(void);
 void TransitionTile_Destroy(TransitionTile* this);
 TransitionTile* TransitionTile_Init(TransitionTile* this, s32 cols, s32 rows);
@@ -1332,18 +1338,18 @@ void PreRender_SetValuesSave(PreRender* this, u32 width, u32 height, void* fbuf,
 void PreRender_Init(PreRender* this);
 void PreRender_SetValues(PreRender* this, u32 width, u32 height, void* fbuf, void* zbuf);
 void PreRender_Destroy(PreRender* this);
-void func_800C170C(PreRender* this, Gfx** gfxp, void* buf, void* bufSave, u32 r, u32 g, u32 b, u32 a);
-void func_800C1AE8(PreRender* this, Gfx** gfxp, void* fbuf, void* fbufSave);
-void PreRender_SaveZBuffer(PreRender* this, Gfx** gfxp);
-void PreRender_SaveFramebuffer(PreRender* this, Gfx** gfxp);
-void PreRender_DrawCoverage(PreRender* this, Gfx** gfxp);
-void PreRender_RestoreZBuffer(PreRender* this, Gfx** gfxp);
-void func_800C213C(PreRender* this, Gfx** gfxp);
-void PreRender_RestoreFramebuffer(PreRender* this, Gfx** gfxp);
-void PreRender_CopyImageRegion(PreRender* this, Gfx** gfxp);
-#ifdef ENABLE_PAUSE_BG_AA
+// #ifdef ENABLE_PAUSE_BG_AA
+void func_800C170C(PreRender* this, Gfx** gfxP, void* buf, void* bufSave, u32 r, u32 g, u32 b, u32 a);
+void func_800C1AE8(PreRender* this, Gfx** gfxP, void* fbuf, void* fbufSave);
+void PreRender_SaveZBuffer(PreRender* this, Gfx** gfxP);
+void PreRender_SaveFramebuffer(PreRender* this, Gfx** gfxP);
+void PreRender_DrawCoverage(PreRender* this, Gfx** gfxP);
+void PreRender_RestoreZBuffer(PreRender* this, Gfx** gfxP);
+void func_800C213C(PreRender* this, Gfx** gfxP);
+void PreRender_RestoreFramebuffer(PreRender* this, Gfx** gfxP);
+void PreRender_CopyImageRegion(PreRender* this, Gfx** gfxP);
 void PreRender_ApplyFilters(PreRender* this);
-#endif
+// #endif
 void AudioMgr_StopAllSfx(void);
 void func_800C3C80(AudioMgr* audioMgr);
 void AudioMgr_HandleRetrace(AudioMgr* audioMgr);
@@ -1352,9 +1358,9 @@ void AudioMgr_ThreadEntry(void* arg0);
 void AudioMgr_Unlock(AudioMgr* audioMgr);
 void AudioMgr_Init(AudioMgr* audioMgr, void* stack, OSPri pri, OSId id, Scheduler* sched, IrqMgr* irqMgr);
 void GameState_FaultPrint(void);
-void GameState_SetFBFilter(Gfx** gfx);
+void GameState_SetFBFilter(Gfx** gfxP);
 #ifdef SHOW_INPUT_DISPLAY
-void GameState_DrawInputDisplay(u16 input, Gfx** gfx);
+void GameState_DrawInputDisplay(u16 input, Gfx** gfxP);
 #endif
 void GameState_Draw(GameState* gameState, GraphicsContext* gfxCtx);
 void GameState_SetFrameBuffer(GraphicsContext* gfxCtx);
@@ -1393,7 +1399,7 @@ void Graph_CloseDisps(Gfx** dispRefs, GraphicsContext* gfxCtx, const char* file,
 
 Gfx* Graph_GfxPlusOne(Gfx* gfx);
 Gfx* Graph_BranchDlist(Gfx* gfx, Gfx* dst);
-void* Graph_DlistAlloc(Gfx** gfx, u32 size);
+void* Graph_DlistAlloc(Gfx** gfxP, u32 size);
 ListAlloc* ListAlloc_Init(ListAlloc* this);
 void* ListAlloc_Alloc(ListAlloc* this, u32 size);
 void ListAlloc_Free(ListAlloc* this, void* data);
@@ -1477,41 +1483,11 @@ void Math3D_DrawSphere(PlayState* play, Sphere16* sph);
 void Math3D_DrawCylinder(PlayState* play, Cylinder16* cyl);
 s16 Math_Atan2S(f32 x, f32 y);
 f32 Math_Atan2F(f32 x, f32 y);
-void Matrix_Init(GameState* gameState);
-void Matrix_Push(void);
-void Matrix_Pop(void);
-void Matrix_Get(MtxF* dest);
-void Matrix_Put(MtxF* src);
-void Matrix_Mult(MtxF* mf, u8 mode);
-void Matrix_Translate(f32 x, f32 y, f32 z, u8 mode);
-void Matrix_Scale(f32 x, f32 y, f32 z, u8 mode);
-void Matrix_RotateX(f32 x, u8 mode);
-void Matrix_RotateY(f32 y, u8 mode);
-void Matrix_RotateZ(f32 z, u8 mode);
-void Matrix_RotateZYX(s16 x, s16 y, s16 z, u8 mode);
-void Matrix_TranslateRotateZYX(Vec3f* translation, Vec3s* rotation);
-void Matrix_SetTranslateRotateYXZ(f32 translateX, f32 translateY, f32 translateZ, Vec3s* rot);
-Mtx* Matrix_MtxFToMtx(MtxF* src, Mtx* dest);
-Mtx* Matrix_ToMtx(Mtx* dest, char* file, s32 line);
-Mtx* Matrix_NewMtx(GraphicsContext* gfxCtx, char* file, s32 line);
-Mtx* Matrix_MtxFToNewMtx(MtxF* src, GraphicsContext* gfxCtx);
-void Matrix_MultVec3f(Vec3f* src, Vec3f* dest);
-void Matrix_MtxFCopy(MtxF* dest, MtxF* src);
-void Matrix_MtxToMtxF(Mtx* src, MtxF* dest);
-void Matrix_MultVec3fExt(Vec3f* src, Vec3f* dest, MtxF* mf);
-void Matrix_Transpose(MtxF* mf);
-void Matrix_ReplaceRotation(MtxF* mf);
-void Matrix_MtxFToYXZRotS(MtxF* mf, Vec3s* rotDest, s32 flag);
-void Matrix_MtxFToZYXRotS(MtxF* mf, Vec3s* rotDest, s32 flag);
-void Matrix_RotateAxis(f32 angle, Vec3f* axis, u8 mode);
-MtxF* Matrix_CheckFloats(MtxF* mf, char* file, s32 line);
-void Matrix_SetTranslateScaleMtx2(Mtx* mtx, f32 scaleX, f32 scaleY, f32 scaleZ, f32 translateX, f32 translateY,
-                                  f32 translateZ);
 u64* SysUcode_GetUCodeBoot(void);
 size_t SysUcode_GetUCodeBootSize(void);
 u64* SysUcode_GetUCode(void);
 u64* SysUcode_GetUCodeData(void);
-void func_800D31A0(void);
+NORETURN void func_800D31A0(void);
 void func_800D31F0(void);
 void func_800D3210(void);
 

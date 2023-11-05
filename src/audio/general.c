@@ -4,7 +4,7 @@
 
 #define Audio_DisableSeq(seqPlayerIndex, fadeOut) Audio_QueueCmdS32(0x83000000 | ((u8)seqPlayerIndex << 16), fadeOut)
 
-#define ABS_ALT(x) ((x) < 0 ? -(x) : (x))
+#define ABS(x) ((x) < 0 ? -(x) : (x))
 
 typedef struct {
     /* 0x0 */ f32 vol;
@@ -1502,7 +1502,7 @@ void AudioOcarina_CheckSongsWithMusicStaff(void) {
         return;
     }
 
-    if (ABS_ALT(sCurOcarinaBendIndex) > 20) {
+    if (ABS(sCurOcarinaBendIndex) > 20) {
         sOcarinaFlags = 0;
         return;
     }
@@ -1627,7 +1627,7 @@ void AudioOcarina_CheckSongsWithoutMusicStaff(void) {
             sOcarinaWithoutMusicStaffPos++;
         }
 
-        if (ABS_ALT(sCurOcarinaBendIndex) > 20) {
+        if (ABS(sCurOcarinaBendIndex) > 20) {
             sCurOcarinaSongWithoutMusicStaff[sOcarinaWithoutMusicStaffPos - 1] = OCARINA_PITCH_NONE;
         } else {
             sCurOcarinaSongWithoutMusicStaff[sOcarinaWithoutMusicStaffPos - 1] = sCurOcarinaPitch;
@@ -1734,7 +1734,7 @@ void AudioOcarina_PlayControllerInput(u8 unused) {
             sCurOcarinaBendFreq = AudioOcarina_BendPitchTwoSemitones(sCurOcarinaBendIndex);
 
             // Add vibrato of the ocarina note based on the x control stick
-            sCurOcarinaVibrato = ABS_ALT(sOcarinaInputStickAdj.x) >> 2;
+            sCurOcarinaVibrato = ABS(sOcarinaInputStickAdj.x) >> 2;
             // Sets vibrato to io port 6
             Audio_QueueCmdS8(0x6 << 24 | SEQ_PLAYER_SFX << 16 | SFX_CHANNEL_OCARINA << 8 | 6, sCurOcarinaVibrato);
         } else {
