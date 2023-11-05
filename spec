@@ -3876,6 +3876,8 @@ beginseg
     include "build/src/overlays/actors/ovl_Shot_Sun/ovl_Shot_Sun_reloc.o"
 endseg
 
+// CUSTOM
+
 beginseg
     name "ovl_Box_Warp"
     include "build/src/overlays/actors/ovl_Box_Warp/t_box_warp.o"
@@ -3893,6 +3895,13 @@ beginseg
     compress
     include "build/src/overlays/actors/ovl_En_Mkk/z_en_mkk.o"
     include "build/src/overlays/actors/ovl_En_Mkk/ovl_En_Mkk_reloc.o"
+endseg
+
+beginseg
+    name "ovl_Obj_Shutter"
+    compress
+    include "build/src/overlays/actors/ovl_Obj_Shutter/z_obj_shutter.o"
+    include "build/src/overlays/actors/ovl_Obj_Shutter/ovl_Obj_Shutter_reloc.o"
 endseg
 
 beginseg
@@ -6950,11 +6959,22 @@ beginseg
     number 6
 endseg
 
+// CUSTOM
+
 beginseg
     name "object_f52_obj"
+    compress
     romalign 0x1000
     number 6
     include "build/assets/objects/object_f52_obj/object_f52_obj.o"
+endseg
+
+beginseg
+    name "object_f53_obj"
+    compress
+    romalign 0x1000
+    number 6
+    include "build/assets/objects/object_f53_obj/object_f53_obj.o"
 endseg
 
 beginseg
@@ -11812,6 +11832,8 @@ beginseg
     number 2
 endseg
 
+// CUSTOM
+
 beginseg
     name "sasatest_scene"
     compress
@@ -11922,5 +11944,21 @@ beginseg
     compress
     romalign 0x1000
     include "build/assets/scenes/overworld/Z2_TOWN/Z2_TOWN_room_00.o"
+    number 3
+endseg
+
+beginseg
+    name "Z2_ICHIBA"
+    compress
+    romalign 0x1000
+    include "build/assets/scenes/overworld/Z2_ICHIBA/Z2_ICHIBA_scene.o"
+    number 2
+endseg
+
+beginseg
+    name "Z2_ICHIBA_room_00"
+    compress
+    romalign 0x1000
+    include "build/assets/scenes/overworld/Z2_ICHIBA/Z2_ICHIBA_room_00.o"
     number 3
 endseg

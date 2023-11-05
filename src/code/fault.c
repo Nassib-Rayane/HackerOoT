@@ -444,9 +444,9 @@ void Fault_FillScreenBlack(void) {
     FaultDrawer_SetBackColor(GPACK_RGBA5551(0, 0, 0, 0));
 }
 
-void Fault_FillScreenRed(void) {
+void Fault_FillScreenGreen(void) {
     FaultDrawer_SetForeColor(GPACK_RGBA5551(255, 255, 255, 1));
-    FaultDrawer_SetBackColor(GPACK_RGBA5551(240, 0, 0, 1));
+    FaultDrawer_SetBackColor(GPACK_RGBA5551(0, 128, 0, 1));
     FaultDrawer_FillScreen();
     FaultDrawer_SetBackColor(GPACK_RGBA5551(0, 0, 0, 0));
 }
@@ -1105,7 +1105,7 @@ void Fault_ThreadEntry(void* arg) {
             // Memory dump page
             Fault_DrawMemDump(faultedThread->context.pc - 0x100, (uintptr_t)faultedThread->context.sp, 0, 0);
             // End page
-            Fault_FillScreenRed();
+            Fault_FillScreenGreen();
             FaultDrawer_DrawText(64, 80, "    CONGRATURATIONS!    ");
             FaultDrawer_DrawText(64, 90, "All Pages are displayed.");
             FaultDrawer_DrawText(64, 100, "       THANK YOU!       ");
