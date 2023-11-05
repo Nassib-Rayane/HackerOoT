@@ -11908,3 +11908,19 @@ beginseg
     include "build/assets/scenes/overworld/Z2_CLOCKTOWER/Z2_CLOCKTOWER_room_00.o"
     number 3
 endseg
+
+beginseg
+    name "Z2_TOWN"
+    compress
+    romalign 0x1000
+    include "build/assets/scenes/overworld/Z2_TOWN/Z2_TOWN_scene.o"
+    number 2
+endseg
+
+beginseg
+    name "Z2_TOWN_room_00"
+    compress
+    romalign 0x1000
+    include "build/assets/scenes/overworld/Z2_TOWN/Z2_TOWN_room_00.o"
+    number 3
+endseg
