@@ -6,7 +6,6 @@
 
 #include "command_macros_base.h"
 
-#define SPAWN_ROT_FLAGS(rotation, flags) (((rotation) << 7) | (flags))
 
 typedef struct {
     /* 0x00 */ RomFile sceneFile;

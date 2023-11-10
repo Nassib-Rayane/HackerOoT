@@ -3905,6 +3905,13 @@ beginseg
 endseg
 
 beginseg
+    name "ovl_Bg_Market_Step"
+    compress
+    include "build/src/overlays/actors/ovl_Bg_Market_Step/z_bg_market_step.o"
+    include "build/src/overlays/actors/ovl_Bg_Market_Step/ovl_Bg_Market_Step_reloc.o"
+endseg
+
+beginseg
     name "gameplay_keep"
     compress
     romalign 0x1000
@@ -6983,6 +6990,14 @@ beginseg
     romalign 0x1000
     number 6
     include "build/assets/objects/object_mkk/object_mkk.o"
+endseg
+
+beginseg
+    name "object_market_obj"
+    compress
+    romalign 0x1000
+    number 6
+    include "build/assets/objects/object_market_obj/object_market_obj.o"
 endseg
 
 beginseg

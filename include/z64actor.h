@@ -168,6 +168,7 @@ typedef struct {
 #define ACTOR_FLAG_26 (1 << 26) // ACTOR_FLAG_CAN_HOLD_SWITCH (1 << 26) // actor can press and hold down switches
 #define ACTOR_FLAG_27 (1 << 27) // ACTOR_FLAG_CANT_LOCK_ON (1 << 27) // prevents locking on with Z targeting an actor even if Navi is floating over it
 #define ACTOR_FLAG_28 (1 << 28) // ACTOR_FLAG_SFX_TIMER (1 << 28) // actor sfx field is used as timer state instead of an sfx id
+#define ACTOR_FLAG_29 (1 << 29) // TODO : Light related (see MM ACTOR_FLAG_10000000)
 
 #define COLORFILTER_GET_COLORINTENSITY(colorFilterParams) (((colorFilterParams) & 0x1F00) >> 5)
 #define COLORFILTER_GET_DURATION(colorFilterParams) ((colorFilterParams) & 0xFF)
